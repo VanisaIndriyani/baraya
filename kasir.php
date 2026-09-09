@@ -1011,7 +1011,91 @@ if (!headers_sent()) {
             color: #000000;
             font-weight: 700;
             margin-top: 4px;
+            line-height: 1.35;
+        }
+        .ucapan-platform-row {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 8px;
+            padding: 8px 8px;
+            margin-bottom: 6px;
+            border: 1.2px solid #111827;
+            border-radius: 12px;
+            background: #FFFFFF;
+        }
+        .ucapan-platform-kiri {
+            display:flex; align-items:center; gap:8px;
+            flex: 1; min-width: 0;
+        }
+        .ucapan-platform-icon {
+            flex-shrink: 0;
+            width: 26px; height: 26px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; line-height: 1;
+            background: linear-gradient(135deg,#FEF3C7,#FDE68A);
+            border: 1px solid #D97706;
+        }
+        .ucapan-platform-nama {
+            font-size: 11px;
+            font-weight: 900;
+            color: #000000;
+            line-height: 1.15;
+            letter-spacing: 0.1px;
+        }
+        .ucapan-platform-star {
+            flex-shrink: 0;
+            text-align: right;
+            line-height: 1;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: #111827;
+        }
+        .ucapan-platform-star-label {
+            display: block;
+            margin-top: 2px;
+            font-size: 7.8px;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: 0.1px;
             line-height: 1.1;
+        }
+        /* Support GAMBAR KARTU UCAPAN CUSTOM */
+        .ucapan-gambar-wrapper-top {
+            text-align: center;
+            padding: 1px 1px 7px 1px;
+            margin-bottom: 1px;
+        }
+        .ucapan-gambar-wrapper-bottom {
+            text-align: center;
+            padding: 7px 1px 1px 1px;
+            margin-top: 2px;
+        }
+        .ucapan-gambar-hero {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border: 1.5px dashed #FBBF24;
+            border-radius: 14px;
+            padding: 4px;
+            background: #FFFFFF;
+            box-sizing: border-box;
+        }
+        .ucapan-gambar-stiker {
+            display: inline-block;
+            max-width: 78%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .ucapan-logo-toko {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            border: 1.5px solid #991B1B;
+            background: linear-gradient(135deg,#FEF3C7,#FDE68A);
+            padding: 3px;
+            display: block;
+            margin: 0 auto 6px auto;
         }
         @media print {
             @page { size: 58mm auto; margin: 0mm; }
@@ -1064,6 +1148,18 @@ if (!headers_sent()) {
             .receipt-footer-thank { margin-top: 10px !important; font-size: 10.5px !important; line-height: 1.4 !important; }
             .receipt-footer-hashtag { font-size: 9.5px !important; margin-top: 6px !important; line-height: 1.35 !important; }
             .receipt-footer-bless { font-size: 9.5px !important; margin-top: 4px !important; }
+            .ucapan-platform-row { padding: 8px 8px !important; margin-bottom: 6px !important; gap: 8px !important; border: 1.2px solid #111827 !important; border-radius: 12px !important; }
+            .ucapan-platform-kiri { gap:8px !important; }
+            .ucapan-platform-icon { width:26px !important; height:26px !important; border-radius:9px !important; font-size:16px !important; border:1px solid #D97706 !important; }
+            .ucapan-platform-nama { font-size: 11px !important; font-weight: 900 !important; line-height:1.15 !important; }
+            .ucapan-platform-star { font-size:11px !important; letter-spacing:1px !important; }
+            .ucapan-platform-star-label { margin-top:2px !important; font-size:7.8px !important; font-weight:800 !important; line-height:1.1 !important; }
+            .ucapan-gambar-wrapper-top { padding: 1px 1px 7px 1px !important; margin-bottom: 1px !important; text-align:center !important; }
+            .ucapan-gambar-wrapper-bottom { padding: 7px 1px 1px 1px !important; margin-top: 2px !important; text-align:center !important; }
+            .ucapan-gambar-hero { width: 100% !important; max-width: 100% !important; height: auto !important; border: 1.5px dashed #FBBF24 !important; border-radius: 14px !important; padding: 4px !important; box-sizing: border-box !important; display:block !important; margin: 0 auto !important; }
+            .ucapan-gambar-stiker { max-width: 78% !important; height: auto !important; border-radius: 10px !important; }
+            .ucapan-logo-toko { width:50px !important; height:50px !important; border-radius:14px !important; border:1.5px solid #991B1B !important; padding:3px !important; margin:0 auto 6px auto !important; display:block !important; }
+            .receipt img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display:block !important; visibility: visible !important; opacity: 1 !important; }
         }
 
         .keranjang-body::-webkit-scrollbar { width:6px; }
@@ -1481,6 +1577,12 @@ if (!headers_sent()) {
             .receipt-footer-thank { margin-top: 10px !important; font-size: 10.5px !important; line-height: 1.4 !important; }
             .receipt-footer-hashtag { font-size: 9.5px !important; margin-top: 6px !important; line-height: 1.35 !important; }
             .receipt-footer-bless { font-size: 9.5px !important; margin-top: 4px !important; }
+            .ucapan-platform-row { padding: 8px 8px !important; margin-bottom: 6px !important; gap: 8px !important; border: 1.2px solid #111827 !important; border-radius: 12px !important; }
+            .ucapan-platform-kiri { gap:8px !important; }
+            .ucapan-platform-icon { width:26px !important; height:26px !important; border-radius:9px !important; font-size:16px !important; border:1px solid #D97706 !important; }
+            .ucapan-platform-nama { font-size: 11px !important; font-weight: 900 !important; line-height:1.15 !important; }
+            .ucapan-platform-star { font-size:11px !important; letter-spacing:1px !important; }
+            .ucapan-platform-star-label { margin-top:2px !important; font-size:7.8px !important; font-weight:800 !important; line-height:1.1 !important; }
         }
 
         /* ==== SCROLLBAR ==== */
@@ -1703,60 +1805,61 @@ if (!headers_sent()) {
 
 <!-- HIDDEN RECEIPT (KARTU UCAPAN TERIMA KASIH - CETAK THERMAL 58mm) -->
 <div class="receipt" id="receiptKartuUcapan">
-    <div class="receipt-card">
-        <div class="receipt-center">
-            <div class="receipt-title" style="font-size:16px; line-height:1.2;">✨ TERIMA KASIH ✨</div>
-            <div class="receipt-sub-nama" style="margin-top:5px; font-size:11px; color:#111827; font-weight:900;">Es Teller & Dawet Baraya</div>
-            <div class="receipt-alamat-wa" style="margin-top:6px; font-weight:700;">
-                Jl. Kakatua No.103, Condongcatur<br>Sleman DIY 55281
-            </div>
-            <div style="text-align:center; margin-top:7px; font-size:10.5px; font-weight:900; letter-spacing:0.2px;">
-                <i class="bi bi-whatsapp" style="color:#10B981;"></i> WhatsApp: +62 831-8930-2691
-            </div>
+    <div class="receipt-card" style="padding: 2px 0 1px 0;">
+        <div class="ucapan-gambar-wrapper-top">
+            <img
+                src="assets/img/ucapan.png"
+                class="ucapan-gambar-hero"
+                alt="Kartu Ucapan Es Teller Dawet Baraya"
+                onerror="this.style.display='none'; document.getElementById('ucapanBackup').style.display='block';"
+                loading="eager"
+                decoding="sync">
         </div>
 
-        <div class="receipt-divider-solid" style="margin:10px 0;"></div>
-
-        <div class="receipt-center" style="padding:2px 0 0 0;">
-            <div style="font-weight:900; font-size:11px; line-height:1.45; color:#111827;">
-                Atas kunjungan dan kepercayaan<br>membeli di Baraya 💛
+        <!-- Fallback / Backup: Jika gambar tidak ketemu / error, tampil teks cadangan (default DISPLAY: NONE). -->
+        <div id="ucapanBackup" style="display:none; padding: 2px 3px 1px 3px;">
+            <div class="receipt-center">
+                <div class="receipt-title" style="font-size:16px; line-height:1.2;">✨ TERIMA KASIH ✨</div>
+                <div class="receipt-sub-nama" style="margin-top:5px; font-size:11px; color:#111827; font-weight:900;">Es Teller & Dawet Baraya</div>
+                <div class="receipt-alamat-wa" style="margin-top:6px; font-weight:700;">Jl. Kakatua No.103, Condongcatur<br>Sleman DIY 55281</div>
+                <div style="text-align:center; margin-top:7px; font-size:10.5px; font-weight:900; letter-spacing:0.2px;">
+                    <i class="bi bi-whatsapp" style="color:#10B981;"></i> WhatsApp: +62 831-8930-2691
+                </div>
             </div>
-        </div>
-
-        <div class="receipt-divider" style="margin:10px 0;"></div>
-
-        <div style="padding:2px 0 0 0;">
-            <div style="font-weight:900; font-size:11px; text-align:center; letter-spacing:0.25px; margin-bottom:8px;">
-                🙏 MOHON BANTUAN REVIEWNYA 🙏
+            <div class="receipt-divider-solid" style="margin:10px 0;"></div>
+            <div style="padding: 2px 0 0 0;">
+                <div style="font-weight:900; font-size:11px; text-align:center; letter-spacing:0.3px; margin-bottom:9px; line-height:1.25;">
+                    🙏 MOHON BANTUAN RATING BINTANG 5 🙏
+                </div>
+                <div class="ucapan-platform-row">
+                    <div class="ucapan-platform-kiri">
+                        <div class="ucapan-platform-icon">📍</div>
+                        <div class="ucapan-platform-nama">GOOGLE MAPS</div>
+                    </div>
+                    <div class="ucapan-platform-star">🌟🌟🌟🌟🌟<span class="ucapan-platform-star-label">Rating 5 Ya</span></div>
+                </div>
+                <div class="ucapan-platform-row">
+                    <div class="ucapan-platform-kiri">
+                        <div class="ucapan-platform-icon">🛵</div>
+                        <div class="ucapan-platform-nama">SHOPEEFOOD</div>
+                    </div>
+                    <div class="ucapan-platform-star">🌟🌟🌟🌟🌟<span class="ucapan-platform-star-label">Rating 5 Ya</span></div>
+                </div>
+                <div class="ucapan-platform-row">
+                    <div class="ucapan-platform-kiri">
+                        <div class="ucapan-platform-icon">🚗</div>
+                        <div class="ucapan-platform-nama">GOFOOD · GOJEK</div>
+                    </div>
+                    <div class="ucapan-platform-star">🌟🌟🌟🌟🌟<span class="ucapan-platform-star-label">Rating 5 Ya</span></div>
+                </div>
+                <div class="ucapan-platform-row" style="margin-bottom:2px;">
+                    <div class="ucapan-platform-kiri">
+                        <div class="ucapan-platform-icon">🛺</div>
+                        <div class="ucapan-platform-nama">GRABFOOD</div>
+                    </div>
+                    <div class="ucapan-platform-star">🌟🌟🌟🌟🌟<span class="ucapan-platform-star-label">Rating 5 Ya</span></div>
+                </div>
             </div>
-
-            <div style="padding:7px 6px; margin-bottom:6px; border:1px dashed #6B7280; border-radius:10px; text-align:center;">
-                <div style="font-size:16px; letter-spacing:2px; line-height:1;">🌟 🌟 🌟 🌟 🌟</div>
-                <div style="font-weight:900; font-size:10.5px; margin-top:5px; color:#111827;">Beri kami rating BINTANG 5</div>
-            </div>
-
-            <div style="padding:4px 0 5px 2px; line-height:1.5;">
-                <div style="font-size:10.8px; font-weight:800; padding:2.5px 0; color:#111827;">🗺️ Google Maps</div>
-                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Cari "Es Teller Dawet Baraya" → Review</div>
-
-                <div style="font-size:10.8px; font-weight:800; padding:4px 0 2.5px 0; color:#111827;">🛵 ShopeeFood</div>
-                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Toko: Es Teller Dawet Baraya → Rating 5</div>
-
-                <div style="font-size:10.8px; font-weight:800; padding:4px 0 2.5px 0; color:#111827;">🛵 GoFood / Gojek</div>
-                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Cari toko kami lalu bintang 5 ya</div>
-
-                <div style="font-size:10.8px; font-weight:800; padding:4px 0 2.5px 0; color:#111827;">🛵 GrabFood</div>
-                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Order lagi & kasih review terbaik 🥰</div>
-            </div>
-        </div>
-
-        <div class="receipt-divider-solid" style="margin:10px 0 9px 0;"></div>
-
-        <div class="receipt-footer-thank" style="margin-top:3px; font-weight:900; line-height:1.5; font-size:11px;">
-            Semoga pesananannya sesuai dan<br>menjadi berkah untuk keluarga 💖
-        </div>
-        <div class="receipt-footer-bless" style="margin-top:7px; text-align:center; font-size:10px; font-weight:800; line-height:1.4;">
-            — Baraya · Minuman & Cemilan Kekinian —<br>Jl. Kakatua No.103 Condongcatur
         </div>
     </div>
 </div>
