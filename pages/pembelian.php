@@ -704,59 +704,59 @@ if ($search !== '') {
 }
 ?>
 
-<div class="page-header">
-    <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none mb-2 d-inline-block"><i class="bi bi-arrow-left"></i> Kembali</a>
-    <h4 class="mb-0"><i class="bi bi-cart-plus me-2"></i>Pembelian</h4>
+<div class="page-header" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); border-bottom: 3px solid #FBBF24;">
+    <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none mb-2 d-inline-block opacity-90 hover-opacity-100" style="transition:opacity 0.2s ease;"><i class="bi bi-arrow-left-circle me-1"></i> Kembali ke Dashboard</a>
+    <h4 class="mb-0 fw-black" style="text-shadow: 0 2px 12px rgba(251,191,36,0.25);"><i class="bi bi-cart-plus me-2" style="color:#FDE68A;"></i>Beli Bahan (Stok)</h4>
 </div>
 
-<div class="d-flex justify-content-end mb-3">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahModal">
-        <i class="bi bi-plus-lg"></i> Tambah Pembelian
+<div class="d-flex justify-content-end mb-3 pt-3">
+    <button type="button" class="btn btn-lg fw-bold rounded-4 px-5" data-bs-toggle="modal" data-bs-target="#tambahModal" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); color:#FDE68A; border: 2px solid #FBBF24; box-shadow: 0 10px 22px rgba(153,27,27,0.32);">
+        <i class="bi bi-plus-lg me-2"></i> Tambah Pembelian
     </button>
 </div>
 
 <div class="row g-4 mb-4">
     <div class="col-md-6 col-xl">
-        <div class="stat-card" style="background: linear-gradient(135deg,#DBEAFE 0%,#BFDBFE 100%); color: #1E3A8A;">
+        <div class="stat-card rounded-4 p-4" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); color: #FDE68A; border: 2px solid rgba(251,191,36,0.5); box-shadow: 0 18px 34px rgba(69,10,10,0.28);">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="stat-label">Total Pembelian</div>
-                    <h3 class="stat-value">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></h3>
+                    <div class="stat-label text-white-50 fw-semibold">Total Nominal Pembelian</div>
+                    <h3 class="stat-value fw-black mt-1" style="color:#FFF;">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></h3>
                 </div>
-                <i class="bi bi-bag-check-fill stat-icon"></i>
+                <i class="bi bi-bag-check-fill stat-icon" style="color:#FBBF24; font-size: 36px;"></i>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl">
-        <div class="stat-card" style="background: linear-gradient(135deg,#D1FAE5 0%,#A7F3D0 100%); color: #065F46;">
+        <div class="stat-card rounded-4 p-4" style="background: linear-gradient(135deg,#FEF3C7 0%,#FDE68A 55%,#FBBF24 100%); color: #450A0A; border: 2px solid #F59E0B; box-shadow: 0 18px 34px rgba(251,191,36,0.22);">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="stat-label">Jumlah Transaksi</div>
-                    <h3 class="stat-value"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0, 0, ',', '.'); ?></h3>
-                    <small class="opacity-75">data pembelian bahan</small>
+                    <div class="stat-label fw-semibold opacity-80">Jumlah Transaksi</div>
+                    <h3 class="stat-value fw-black mt-1" style="color:#7F1D1D;"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0, 0, ',', '.'); ?></h3>
+                    <small class="opacity-75 fw-medium">data pembelian stok bahan</small>
                 </div>
-                <i class="bi bi-receipt-cutoff stat-icon"></i>
+                <i class="bi bi-receipt-cutoff stat-icon" style="color:#7F1D1D; font-size: 36px;"></i>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-    <div class="card-header bg-white border-0 px-4 py-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+<div class="card border-0 rounded-4 mb-4 overflow-hidden" style="box-shadow: 0 20px 45px rgba(15,23,42,0.12); border: 2px solid rgba(251,191,36,0.18);">
+    <div class="card-header bg-white border-0 px-4 py-4 d-flex flex-wrap gap-3 justify-content-between align-items-center" style="border-bottom: 2px dashed rgba(251,191,36,0.4);">
         <div>
-            <h6 class="fw-bold mb-0 text-primary">
-                <i class="bi bi-clock-history me-2"></i>Riwayat Pembelian
+            <h6 class="fw-black mb-1" style="color: #7F1D1D; font-size: 1.1rem;">
+                <i class="bi bi-clock-history me-2" style="color:#FBBF24;"></i>Riwayat Pembelian
             </h6>
-            <small class="text-muted">
-                <?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> data • Total Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?>
+            <small class="text-muted fw-semibold opacity-85">
+                📊 <?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> data • Total: <span style="color:#991B1B;" class="fw-bold">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></span>
             </small>
         </div>
         <div class="d-flex gap-2 align-items-center">
-            <form method="GET" class="input-group input-group-lg" style="width: 320px;">
-                <input type="text" class="form-control" name="search" placeholder="Cari pembelian..." value="<?php echo htmlspecialchars($search); ?>">
-                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+            <form method="GET" class="input-group input-group-lg rounded-4 overflow-hidden" style="width: 340px; border: 2px solid rgba(251,191,36,0.45); box-shadow: 0 4px 12px rgba(251,191,36,0.12);">
+                <input type="text" class="form-control border-0" style="background:#FFFBEB;" name="search" placeholder="🔍 Cari nama barang / nota..." value="<?php echo htmlspecialchars($search); ?>">
+                <button class="btn border-0" type="submit" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A;"><i class="bi bi-search fw-bold"></i></button>
                 <?php if ($search !== ''): ?>
-                <a href="pembelian.php" class="btn btn-outline-secondary">
+                <a href="pembelian.php" class="btn btn-outline-secondary border-0" style="background:#F3F4F6; color:#6B7280;">
                     <i class="bi bi-x-lg"></i>
                 </a>
                 <?php endif; ?>
@@ -765,25 +765,25 @@ if ($search !== '') {
     </div>
 
     <?php if (empty($pembelian)): ?>
-    <div class="card-body text-center py-5">
-        <i class="bi bi-inbox fs-1 opacity-25 d-block mb-3 text-muted"></i>
-        <h5 class="text-muted mb-1">Belum ada data pembelian</h5>
-        <p class="text-muted small mb-3">Silakan klik tombol Tambah Pembelian di atas.</p>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahModal">
+    <div class="card-body text-center py-6" style="padding: 7rem 2rem;">
+        <i class="bi bi-inbox fs-1 opacity-25 d-block mb-4" style="color:#7F1D1D;"></i>
+        <h5 class="mb-2 fw-bold" style="color:#450A0A;">Belum ada data pembelian</h5>
+        <p class="text-muted small mb-4 fw-medium opacity-80">Silakan klik tombol Tambah Pembelian di kanan atas ya.</p>
+        <button class="btn btn-lg fw-bold rounded-4 px-5" data-bs-toggle="modal" data-bs-target="#tambahModal" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border: 2px solid #FBBF24;">
             <i class="bi bi-plus-lg me-2"></i>Tambah Pembelian
         </button>
     </div>
     <?php else: ?>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" style="min-width: 900px;">
+    <div class="table-responsive px-1 pb-1">
+        <table class="table table-hover align-middle mb-0" style="min-width: 920px;">
             <thead>
-                <tr style="background: linear-gradient(135deg,#DBEAFE 0%,#BFDBFE 100%);">
-                    <th class="px-4 py-3 fw-semibold text-primary-emphasis border-0" style="border-top-left-radius: 12px;">Tanggal</th>
-                    <th class="px-3 py-3 fw-semibold text-primary-emphasis border-0">Nota</th>
-                    <th class="px-3 py-3 fw-semibold text-primary-emphasis border-0">Item Barang</th>
-                    <th class="px-3 py-3 fw-semibold text-primary-emphasis border-0">Metode</th>
-                    <th class="px-3 py-3 fw-semibold text-primary-emphasis border-0 text-end">Total</th>
-                    <th class="px-4 py-3 fw-semibold text-primary-emphasis border-0 text-center" style="border-top-right-radius: 12px;">Aksi</th>
+                <tr style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%);">
+                    <th class="px-4 py-4 fw-black text-white border-0" style="border-top-left-radius: 18px; letter-spacing:0.3px;">📅 Tanggal</th>
+                    <th class="px-3 py-4 fw-black text-white border-0" style="letter-spacing:0.3px;">🖼 Nota</th>
+                    <th class="px-3 py-4 fw-black text-white border-0" style="letter-spacing:0.3px;">📦 Item Barang</th>
+                    <th class="px-3 py-4 fw-black text-white border-0" style="letter-spacing:0.3px;">💳 Metode</th>
+                    <th class="px-3 py-4 fw-black text-white border-0 text-end" style="letter-spacing:0.3px;">💰 Total</th>
+                    <th class="px-4 py-4 fw-black text-white border-0 text-center" style="border-top-right-radius: 18px; letter-spacing:0.3px;">⚙️ Aksi</th>
                 </tr>
             </thead>
             <tbody class="border-top-0">
@@ -795,235 +795,71 @@ if ($search !== '') {
         $tanggal_jatuh_tempo_edit = $hutang_pembelian['tanggal_jatuh_tempo'] ?? '';
         $item_names = array_map(fn($d) => $d['barang_nama'] . ' x' . ((int) ($d['qty'] ?? 1)), $details);
         ?>
-                <tr class="border-bottom border-light cursor-pointer transition-card" data-bs-toggle="modal" data-bs-target="#detailPembelianModal<?php echo $p['id']; ?>">
-                    <td class="px-4 py-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge rounded-pill bg-light text-primary border border-primary-subtle px-3 py-2">
-                                <i class="bi bi-calendar-event me-1"></i>
+                <tr class="border-bottom border-light cursor-pointer transition-card" data-bs-toggle="modal" data-bs-target="#detailPembelianModal<?php echo $p['id']; ?>" style="border-bottom: 1.5px solid rgba(251,191,36,0.18) !important;">
+                    <td class="px-4 py-4">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: linear-gradient(135deg,rgba(254,243,199,0.7),rgba(253,230,138,0.6)); color:#7F1D1D; border:1.5px solid rgba(251,191,36,0.55);">
+                                <i class="bi bi-calendar-event-fill me-1"></i>
                                 <?php echo date('d M Y', strtotime($p['tanggal'])); ?>
                             </span>
-                            <span class="small text-muted">#PBL-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></span>
+                            <span class="small fw-bold text-muted opacity-75">#PBL-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></span>
                         </div>
                     </td>
-                    <td class="px-3 py-3">
+                    <td class="px-3 py-4">
                         <?php if ($p['nota']): ?>
-                        <div class="rounded-3 overflow-hidden border border-light" style="width:48px;height:48px;">
+                        <div class="rounded-3 overflow-hidden" style="width:52px;height:52px; box-shadow:0 4px 10px rgba(127,29,29,0.15); border: 1.5px solid #FBBF24;">
                             <img src="<?php echo $base_url; ?>/uploads/nota/<?php echo $p['nota']; ?>" alt="Nota" style="width:100%;height:100%;object-fit:cover;">
                         </div>
                         <?php else: ?>
-                        <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-10 text-primary" style="width:48px;height:48px;">
-                            <i class="bi bi-file-text"></i>
+                        <div class="d-flex align-items-center justify-content-center rounded-3" style="width:52px;height:52px; background:linear-gradient(135deg,#FEF2F2,#FEE2E2); color:#7F1D1D; border:1.5px dashed rgba(127,29,29,0.45);">
+                            <i class="bi bi-file-earmark-image-fill"></i>
                         </div>
                         <?php endif; ?>
                     </td>
-                    <td class="px-3 py-3">
+                    <td class="px-3 py-4">
                         <?php if (!empty($item_names)): ?>
-                        <span class="d-block fw-medium text-dark mb-1" style="max-width:350px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        <span class="d-block fw-bold text-dark mb-1" style="max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; font-size:0.97rem;">
                             <?php echo htmlspecialchars(implode(', ', array_slice($item_names, 0, 2))); ?>
                         </span>
                         <?php if (count($item_names) > 2): ?>
-                        <small class="text-muted opacity-75">+<?php echo count($item_names) - 2; ?> item lainnya</small>
+                        <small class="fw-semibold opacity-80" style="color:#991B1B;">+<?php echo count($item_names) - 2; ?> item lainnya</small>
                         <?php endif; ?>
                         <?php else: ?>
-                        <span class="small fst-italic text-muted opacity-75">Tidak ada detail</span>
+                        <span class="small fst-italic text-muted opacity-80 fw-medium">Tidak ada detail barang</span>
                         <?php endif; ?>
                     </td>
-                    <td class="px-3 py-3">
-                        <span class="badge rounded-pill bg-<?php echo badgeMetodePembelian($p['metode_pembayaran']); ?> px-3 py-2">
-                            <i class="bi bi-credit-card me-1"></i>
+                    <td class="px-3 py-4">
+                        <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border:1.5px solid #FBBF24;">
+                            <i class="bi bi-credit-card-2-front-fill me-1"></i>
                             <?php echo labelMetodePembelian($p['metode_pembayaran']); ?>
                         </span>
                     </td>
-                    <td class="px-3 py-3 text-end">
-                        <h6 class="fw-bold text-primary mb-0">
+                    <td class="px-3 py-4 text-end">
+                        <h6 class="fw-black mb-0" style="color:#7F1D1D; font-size: 1.1rem; letter-spacing:0.2px;">
                             Rp <?php echo number_format($p['total'], 0, ',', '.'); ?>
                         </h6>
                     </td>
-                    <td class="px-4 py-3 text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <button class="action-btn edit" onclick="event.stopPropagation(); bukaEditPembelian(<?php echo $p['id']; ?>);">
-                                <i class="bi bi-pencil"></i>
+                    <td class="px-4 py-4 text-center">
+                        <div class="d-flex justify-content-center gap-3 align-items-center">
+                            <button class="btn-edit-row" onclick="event.stopPropagation(); bukaEditPembelian(<?php echo $p['id']; ?>);" title="Edit Pembelian">
+                                <i class="bi bi-pencil-fill"></i>
                             </button>
-                            <button class="action-btn delete" onclick="event.stopPropagation(); hapusPembelian(<?php echo $p['id']; ?>);">
-                                <i class="bi bi-trash"></i>
+                            <button class="btn-del-row" onclick="event.stopPropagation(); hapusPembelian(<?php echo $p['id']; ?>);" title="Hapus Pembelian">
+                                <i class="bi bi-trash3-fill"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
-
-        <div class="modal fade" id="detailPembelianModal<?php echo $p['id']; ?>" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content rounded-4">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title">Detail Pembelian</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="text-muted small">Tanggal</label>
-                            <p class="mb-0"><?php echo date('d/m/Y', strtotime($p['tanggal'])); ?></p>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="text-muted small">Metode Pembayaran</label>
-                            <p class="mb-0"><?php echo labelMetodePembelian($p['metode_pembayaran']); ?></p>
-                        </div>
-
-                        <?php if ($hutang_pembelian && $hutang_pembelian['tanggal_jatuh_tempo']): ?>
-                        <div class="mb-3">
-                            <label class="text-muted small">Jatuh Tempo Hutang</label>
-                            <p class="mb-0"><?php echo date('d/m/Y', strtotime($hutang_pembelian['tanggal_jatuh_tempo'])); ?></p>
-                        </div>
-                        <?php endif; ?>
-
-                        <div class="mb-3">
-                            <label class="text-muted small">Item Barang</label>
-                            <div class="table-responsive mt-2">
-                                <table class="table table-sm align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Barang</th>
-                                            <th class="text-end">Qty</th>
-                                            <th class="text-end">Harga</th>
-                                            <th class="text-end">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($details as $d): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($d['barang_nama']); ?></td>
-                                            <td class="text-end"><?php echo (int) $d['qty']; ?></td>
-                                            <td class="text-end">Rp <?php echo number_format($d['harga'], 0, ',', '.'); ?></td>
-                                            <td class="text-end">Rp <?php echo number_format($d['subtotal'], 0, ',', '.'); ?></td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="fw-bold">
-                                            <td colspan="3" class="text-end">Total</td>
-                                            <td class="text-end text-primary">Rp <?php echo number_format($p['total'], 0, ',', '.'); ?></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-
-                        <?php if ($p['nota']): ?>
-                        <div class="mb-3">
-                            <label class="text-muted small">Nota</label>
-                            <img src="<?php echo $base_url; ?>/uploads/nota/<?php echo htmlspecialchars($p['nota']); ?>" class="img-fluid rounded mt-1" alt="Nota Pembelian">
-                        </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-warning" onclick="bukaEditPembelian(<?php echo $p['id']; ?>)">
-                            <i class="bi bi-pencil"></i> Edit
-                        </button>
-
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="hapusPembelian(<?php echo $p['id']; ?>)">
-                            <i class="bi bi-trash"></i> Hapus
-                        </button>
-
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="editModal<?php echo $p['id']; ?>" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content rounded-4">
-                    <form method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="action" value="edit_pembelian">
-                        <input type="hidden" name="id" value="<?php echo $p['id']; ?>">
-
-                        <div class="modal-header border-0">
-                            <h5 class="modal-title">Edit Pembelian</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Tanggal</label>
-                                <input type="date" class="form-control form-control-lg" name="tanggal" value="<?php echo htmlspecialchars($p['tanggal']); ?>" required>
-                            </div>
-
-                            <input type="hidden" name="metode_pembayaran" value="kas_operasional">
-                            <div class="mb-3">
-                                <label class="form-label">Metode Pembayaran</label>
-                                <div class="form-control form-control-lg bg-light">Kas Operasional</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Item Barang</label>
-                                <div id="itemsContainerEdit<?php echo $p['id']; ?>" data-total-target="totalDisplayEdit<?php echo $p['id']; ?>">
-                                    <?php foreach ($details as $index => $d): ?>
-                                    <div class="card mb-2 p-3 item-row">
-                                        <div class="row g-2 align-items-end">
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Nama Barang</label>
-                                                <input type="text" class="form-control item-nama-barang" name="items[<?php echo $index; ?>][nama_barang]" value="<?php echo htmlspecialchars($d['barang_nama']); ?>" placeholder="Contoh: Alpukat, Gula, dll" required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label small">Qty</label>
-                                                <input type="number" class="form-control item-qty" name="items[<?php echo $index; ?>][qty]" value="<?php echo (int) $d['qty']; ?>" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label small">Harga</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text bg-light fw-semibold">Rp</span>
-                                                    <input type="number" class="form-control item-harga" name="items[<?php echo $index; ?>][harga]" value="<?php echo htmlspecialchars($d['harga']); ?>" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-1">
-                                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeItemRow(this)">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                                <button type="button" class="btn btn-outline-primary w-100 mt-2" onclick="addItem('itemsContainerEdit<?php echo $p['id']; ?>')">
-                                    <i class="bi bi-plus-lg me-1"></i>Tambah Item
-                                </button>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Total: Rp <span id="totalDisplayEdit<?php echo $p['id']; ?>">0</span></label>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Ganti Nota</label>
-                                <input type="file" class="form-control form-control-lg" name="nota" accept="image/*">
-                                <?php if ($p['nota']): ?>
-                                <small class="text-muted d-block mt-2">Nota saat ini: <?php echo htmlspecialchars($p['nota']); ?></small>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-semibold">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     <?php endforeach; ?>
 
             </tbody>
             <tfoot>
-                <tr style="background: linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%);">
-                    <td colspan="4" class="px-4 py-3 fw-bold text-end">
-                        <span class="text-warning-emphasis">TOTAL (<?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> transaksi)</span>
+                <tr style="background: linear-gradient(90deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); border-top: 3px solid #FBBF24;">
+                    <td colspan="4" class="px-4 py-4 fw-black text-end text-white">
+                        <span style="color:#FDE68A; letter-spacing:0.4px;">📌 TOTAL SEMUA (<?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> transaksi):</span>
                     </td>
-                    <td class="px-3 py-3 fw-bold text-end">
-                        <h5 class="mb-0 text-warning-emphasis">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></h5>
+                    <td class="px-3 py-4 fw-black text-end" style="border-bottom-right-radius: 0;">
+                        <h4 class="mb-0" style="color:#FBBF24; letter-spacing: 0.8px; text-shadow: 0 2px 10px rgba(251,191,36,0.35);">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></h4>
                     </td>
                     <td></td>
                 </tr>
@@ -1033,50 +869,256 @@ if ($search !== '') {
     <?php endif; ?>
 </div>
 
+<!-- MODAL SEMUA DATA PEMBELIAN (DILETAKKAN DI LUAR TABLE = HTML VALID, GA ADA TOMBOL NYANGKUT!) -->
+<?php foreach ($pembelian as $p): ?>
+    <?php
+    $details = ambilDetailPembelian($pdo, $p['id']);
+    $hutang_pembelian = ambilHutangPembelian($pdo, $p['id']);
+    $tanggal_jatuh_tempo_edit = $hutang_pembelian['tanggal_jatuh_tempo'] ?? '';
+    ?>
+    <div class="modal fade" id="detailPembelianModal<?php echo $p['id']; ?>" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-4 border-0" style="box-shadow: 0 30px 70px rgba(69,10,10,0.35); border-top:4px solid #FBBF24;">
+                <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 55%,#991B1B 100%); color:#fff;">
+                    <div>
+                        <h5 class="modal-title fw-black mb-0" style="color:#FDE68A;"><i class="bi bi-receipt-cutoff me-2" style="color:#FBBF24;"></i>Detail Pembelian Bahan</h5>
+                        <small class="text-white-50 mt-1 d-block fw-semibold">#PBL-<?php echo str_pad($p['id'],5,'0',STR_PAD_LEFT); ?></small>
+                    </div>
+                    <button type="button" class="btn-close border-0 rounded-circle" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.92); opacity:1;"></button>
+                </div>
+
+                <div class="modal-body px-5 py-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-bold mb-1 d-block opacity-80">📅 Tanggal</label>
+                            <div class="rounded-3 p-3" style="background: linear-gradient(135deg,#FEF2F2,#FEE2E2); color:#7F1D1D; font-weight:800;">
+                                <?php echo date('d F Y', strtotime($p['tanggal'])); ?>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-bold mb-1 d-block opacity-80">💳 Metode Bayar</label>
+                            <div class="rounded-3 p-3" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border:2px solid #FBBF24; font-weight:800;">
+                                <i class="bi bi-credit-card-2-front-fill me-1" style="color:#FBBF24;"></i><?php echo labelMetodePembelian($p['metode_pembayaran']); ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php if ($hutang_pembelian && $hutang_pembelian['tanggal_jatuh_tempo']): ?>
+                    <div class="mb-4">
+                        <label class="text-muted small fw-bold mb-1 d-block opacity-80">⏰ Jatuh Tempo Hutang</label>
+                        <div class="rounded-3 p-3" style="background: linear-gradient(135deg,#FEF9C3,#FEF3C7); color:#713F12; border:2px dashed #F59E0B; font-weight:800;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i><?php echo date('d F Y', strtotime($hutang_pembelian['tanggal_jatuh_tempo'])); ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="mb-4">
+                        <label class="small fw-black mb-2 d-block" style="color:#7F1D1D; letter-spacing:0.5px;">📦 RINCIAN ITEM BARANG</label>
+                        <div class="table-responsive rounded-4 overflow-hidden" style="border:2px solid rgba(251,191,36,0.4); box-shadow:0 8px 20px rgba(69,10,10,0.1);">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A;">
+                                    <tr>
+                                        <th class="px-4 py-3 fw-black border-0">Barang</th>
+                                        <th class="px-3 py-3 fw-black border-0 text-center">Qty</th>
+                                        <th class="px-3 py-3 fw-black border-0 text-end">Harga Satuan</th>
+                                        <th class="px-4 py-3 fw-black border-0 text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $no = 1; foreach ($details as $d): ?>
+                                    <tr style="border-bottom: 1.5px solid rgba(251,191,36,0.18);">
+                                        <td class="px-4 py-3 fw-bold" style="color:#1F2937;"><?php echo $no; ?>. <?php echo htmlspecialchars($d['barang_nama']); ?></td>
+                                        <td class="px-3 py-3 text-center fw-black" style="color:#991B1B;"><?php echo (int) $d['qty']; ?></td>
+                                        <td class="px-3 py-3 text-end fw-semibold opacity-90">Rp <?php echo number_format($d['harga'], 0, ',', '.'); ?></td>
+                                        <td class="px-4 py-3 text-end fw-black" style="color:#7F1D1D;">Rp <?php echo number_format($d['subtotal'], 0, ',', '.'); ?></td>
+                                    </tr>
+                                    <?php $no++; endforeach; ?>
+                                </tbody>
+                                <tfoot style="background: linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%); border-top:3px solid #FBBF24;">
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-3 fw-black text-end" style="color:#713F12; letter-spacing:0.4px;">TOTAL TAGIHAN:</td>
+                                        <td class="px-4 py-3 fw-black text-end" style="color:#7F1D1D; font-size: 1.35rem; letter-spacing: 0.8px;">Rp <?php echo number_format($p['total'], 0, ',', '.'); ?></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <?php if ($p['nota']): ?>
+                    <div class="mb-2">
+                        <label class="small fw-black mb-2 d-block" style="color:#7F1D1D; letter-spacing:0.5px;">🖼 BUKTI / NOTA PEMBELIAN</label>
+                        <div class="rounded-4 overflow-hidden" style="border:3px solid #FBBF24; box-shadow: 0 12px 28px rgba(69,10,10,0.18);">
+                            <img src="<?php echo $base_url; ?>/uploads/nota/<?php echo htmlspecialchars($p['nota']); ?>" class="img-fluid w-100" alt="Nota Pembelian">
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="modal-footer border-0 px-5 pb-5 pt-3" style="border-top:2px dashed rgba(251,191,36,0.5);">
+                    <button type="button" class="btn btn-edit-modal" onclick="bukaEditPembelian(<?php echo $p['id']; ?>)">
+                        <i class="bi bi-pencil-fill me-1"></i> Edit Data
+                    </button>
+
+                    <button type="button" class="btn btn-del-modal" data-bs-dismiss="modal" onclick="hapusPembelian(<?php echo $p['id']; ?>)">
+                        <i class="bi bi-trash3-fill me-1"></i> Hapus
+                    </button>
+
+                    <button type="button" class="btn btn-tutup-modal" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i> Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal<?php echo $p['id']; ?>" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0" style="box-shadow:0 28px 65px rgba(69,10,10,0.32); border-top: 4px solid #FBBF24;">
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="edit_pembelian">
+                    <input type="hidden" name="id" value="<?php echo $p['id']; ?>">
+
+                    <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B);">
+                        <div>
+                            <h5 class="modal-title fw-black mb-0" style="color:#FDE68A;"><i class="bi bi-pencil-square me-2" style="color:#FBBF24;"></i>Edit Pembelian Bahan</h5>
+                            <small class="text-white-50 mt-1 d-block fw-semibold">Sesuaikan detail transaksi dibawah ini ya</small>
+                        </div>
+                        <button type="button" class="btn-close border-0 rounded-circle" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.92); opacity:1;"></button>
+                    </div>
+
+                    <div class="modal-body px-5 py-4">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color:#450A0A;">📅 Tanggal Pembelian</label>
+                            <input type="date" class="form-control form-control-lg" style="border:2px solid rgba(251,191,36,0.45); border-radius: 14px; background:#FFFBEB;" name="tanggal" value="<?php echo htmlspecialchars($p['tanggal']); ?>" required>
+                        </div>
+
+                        <input type="hidden" name="metode_pembayaran" value="kas_operasional">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color:#450A0A;">💳 Metode Pembayaran</label>
+                            <div class="form-control form-control-lg rounded-4" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border:2px solid #FBBF24; font-weight:800; min-height:54px; display:flex; align-items:center;"><i class="bi bi-credit-card-2-front-fill me-2" style="color:#FBBF24;"></i> Kas Operasional (Rekening Utama)</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold d-flex align-items-center gap-2" style="color:#450A0A;">
+                                <i class="bi bi-box-seam me-1" style="color:#FBBF24;"></i>Item Barang
+                            </label>
+                            <div id="itemsContainerEdit<?php echo $p['id']; ?>" data-total-target="totalDisplayEdit<?php echo $p['id']; ?>" class="mb-2">
+                                <?php foreach ($details as $index => $d): ?>
+                                <div class="card mb-2 p-3 item-row rounded-4" style="background: linear-gradient(135deg,#FFFBEB,#FEF3C7); border: 2px solid rgba(251,191,36,0.5); box-shadow: 0 4px 10px rgba(251,191,36,0.12);">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-5">
+                                            <label class="form-label small fw-bold" style="color:#7F1D1D;">Nama Barang</label>
+                                            <input type="text" class="form-control item-nama-barang rounded-3 border-2" style="border-color:#FBBF24;" name="items[<?php echo $index; ?>][nama_barang]" value="<?php echo htmlspecialchars($d['barang_nama']); ?>" placeholder="Contoh: Gula Pasir, Alpukat, dll" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold" style="color:#7F1D1D;">Qty</label>
+                                            <input type="number" class="form-control item-qty rounded-3 border-2" style="border-color:#FBBF24;" name="items[<?php echo $index; ?>][qty]" value="<?php echo (int) $d['qty']; ?>" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold" style="color:#7F1D1D;">Harga Satuan</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text rounded-start-3 fw-bold border-2 border-end-0" style="background: linear-gradient(135deg,#450A0A,#7F1D1D); color:#FDE68A; border-color:#7F1D1D;">Rp</span>
+                                                <input type="number" class="form-control item-harga rounded-end-3 border-start-0 border-2" style="border-color:#7F1D1D; background:#FFF;" name="items[<?php echo $index; ?>][harga]" value="<?php echo htmlspecialchars($d['harga']); ?>" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn-hapus-item-row w-100" onclick="removeItemRow(this)">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="btn btn-tambah-item w-100 mt-2 fw-bold" onclick="addItem('itemsContainerEdit<?php echo $p['id']; ?>')">
+                                <i class="bi bi-plus-lg me-1"></i>Tambah Item Lainnya
+                            </button>
+                        </div>
+
+                        <div class="mb-4 rounded-4 p-4" style="background: linear-gradient(90deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); border:2px solid #FBBF24;">
+                            <label class="d-flex justify-content-between align-items-center text-white fw-bold mb-0 w-100">
+                                <span style="letter-spacing: 0.6px; color:#FDE68A;"><i class="bi bi-cash-coin me-1" style="color:#FBBF24;"></i> TOTAL SEMENTARA</span>
+                                <h3 class="mb-0 fw-black" style="color:#FBBF24; text-shadow: 0 2px 10px rgba(251,191,36,0.35);">Rp <span id="totalDisplayEdit<?php echo $p['id']; ?>">0</span></h3>
+                            </label>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label fw-bold" style="color:#450A0A;">🖼 Ganti Nota / Bukti (Opsional)</label>
+                            <input type="file" class="form-control form-control-lg rounded-4" style="border:2px dashed rgba(251,191,36,0.6); background:#FFFBEB;" name="nota" accept="image/*">
+                            <?php if ($p['nota']): ?>
+                            <div class="mt-3 d-flex gap-2 align-items-center bg-white rounded-3 p-2" style="border: 1.5px solid rgba(127,29,29,0.18);">
+                                <img src="<?php echo $base_url; ?>/uploads/nota/<?php echo htmlspecialchars($p['nota']); ?>" style="width:64px; height:64px; object-fit:cover; border-radius: 12px; border:1.5px solid #FBBF24;">
+                                <div>
+                                    <div class="fw-bold small" style="color:#7F1D1D;">📎 Nota saat ini</div>
+                                    <small class="text-muted fw-medium opacity-80"><?php echo htmlspecialchars($p['nota']); ?></small>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 px-5 pb-5 pt-2" style="border-top: 2px dashed rgba(251,191,36,0.5);">
+                        <button type="button" class="btn btn-batal-modal" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle me-1"></i> Batal</button>
+                        <button type="submit" class="btn btn-simpan-modal"><i class="bi bi-check-circle-fill me-1"></i> Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
+
 <div class="modal fade" id="tambahModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-content rounded-4 border-0" style="box-shadow:0 28px 65px rgba(69,10,10,0.32); border-top:4px solid #FBBF24;">
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="tambah_pembelian">
 
-                <div class="modal-header border-0 px-4 pt-4 pb-2">
-                    <h5 class="modal-title fw-bold">Tambah Pembelian</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 55%,#991B1B 100%);">
+                    <div>
+                        <h5 class="modal-title fw-black mb-0" style="color:#FDE68A;"><i class="bi bi-cart-plus-fill me-2" style="color:#FBBF24;"></i>Tambah Pembelian Bahan Baru</h5>
+                        <small class="text-white-50 mt-1 d-block fw-semibold">Catat pengeluaran stok barang disini yaa</small>
+                    </div>
+                    <button type="button" class="btn-close border-0 rounded-circle" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.92); opacity:1;"></button>
                 </div>
 
-                <div class="modal-body px-4 py-3">
+                <div class="modal-body px-5 py-4">
                     <div class="mb-4">
-                        <label class="form-label fw-semibold small">Tanggal</label>
-                        <input type="date" class="form-control form-control-lg" name="tanggal" value="<?php echo date('Y-m-d'); ?>" required>
+                        <label class="form-label fw-bold" style="color:#450A0A;">📅 Tanggal Pembelian</label>
+                        <input type="date" class="form-control form-control-lg" style="border:2px solid rgba(251,191,36,0.45); border-radius: 14px; background:#FFFBEB;" name="tanggal" value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
 
                     <input type="hidden" name="metode_pembayaran" value="kas_operasional">
                     <div class="mb-4">
-                        <label class="form-label fw-semibold small">Metode Pembayaran</label>
-                        <div class="form-control form-control-lg bg-light">Kas Operasional</div>
+                        <label class="form-label fw-bold" style="color:#450A0A;">💳 Metode Pembayaran</label>
+                        <div class="form-control form-control-lg rounded-4" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border:2px solid #FBBF24; font-weight:800; min-height:54px; display:flex; align-items:center;"><i class="bi bi-credit-card-2-front-fill me-2" style="color:#FBBF24;"></i> Kas Operasional (Rekening Utama)</div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-semibold small">Item Barang</label>
-                        <div id="itemsContainerTambah" data-total-target="totalDisplayTambah"></div>
-                        <button type="button" class="btn btn-outline-primary w-100 mt-2 fw-medium" onclick="addItem('itemsContainerTambah')">
-                            <i class="bi bi-plus-lg me-1"></i>Tambah Item
+                        <label class="form-label fw-bold d-flex align-items-center gap-2" style="color:#450A0A;">
+                            <i class="bi bi-box-seam me-1" style="color:#FBBF24;"></i>Daftar Item Barang
+                        </label>
+                        <div id="itemsContainerTambah" data-total-target="totalDisplayTambah" class="mb-2"></div>
+                        <button type="button" class="btn btn-tambah-item w-100 mt-2 fw-bold" onclick="addItem('itemsContainerTambah')">
+                            <i class="bi bi-plus-lg me-1"></i>Tambah Item Lainnya
                         </button>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Total: Rp <span id="totalDisplayTambah">0</span></label>
+                    <div class="mb-4 rounded-4 p-4" style="background: linear-gradient(90deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); border:2px solid #FBBF24;">
+                        <label class="d-flex justify-content-between align-items-center text-white fw-bold mb-0 w-100">
+                            <span style="letter-spacing:0.6px; color:#FDE68A;"><i class="bi bi-cash-coin me-1" style="color:#FBBF24;"></i> TOTAL SEMENTARA</span>
+                            <h3 class="mb-0 fw-black" style="color:#FBBF24; text-shadow:0 2px 10px rgba(251,191,36,0.35);">Rp <span id="totalDisplayTambah">0</span></h3>
+                        </label>
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label fw-semibold small">Nota (opsional)</label>
-                        <input type="file" class="form-control form-control-lg" name="nota" accept="image/*">
+                        <label class="form-label fw-bold" style="color:#450A0A;">🖼 Upload Nota / Bukti (Opsional)</label>
+                        <input type="file" class="form-control form-control-lg rounded-4" style="border:2px dashed rgba(251,191,36,0.6); background:#FFFBEB;" name="nota" accept="image/*">
                     </div>
                 </div>
 
-                <div class="modal-footer border-0 px-4 pb-4 pt-2">
-                    <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-lg px-5 fw-semibold">Simpan</button>
+                <div class="modal-footer border-0 px-5 pb-5 pt-2" style="border-top: 2px dashed rgba(251,191,36,0.5);">
+                    <button type="button" class="btn btn-batal-modal" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle me-1"></i> Batal</button>
+                    <button type="submit" class="btn btn-simpan-modal"><i class="bi bi-check-circle-fill me-1"></i> Simpan Pembelian</button>
                 </div>
             </form>
         </div>
@@ -1103,26 +1145,26 @@ function itemRowTemplate(index, item = null) {
     const harga = item && item.harga ? item.harga : '';
 
     return `
-        <div class="card mb-2 p-3 item-row border border-opacity-50">
-            <div class="row g-2 align-items-end">
+        <div class="card mb-2 p-3 item-row rounded-4" style="background: linear-gradient(135deg,#FFFBEB,#FEF3C7); border: 2px solid rgba(251,191,36,0.5); box-shadow: 0 4px 10px rgba(251,191,36,0.12);">
+            <div class="row g-3 align-items-end">
                 <div class="col-md-5">
-                    <label class="form-label small fw-medium">Nama Barang</label>
-                    <input type="text" class="form-control item-nama-barang" name="items[${index}][nama_barang]" value="${namaBarang}" placeholder="Contoh: Alpukat, Gula" required>
+                    <label class="form-label small fw-bold" style="color:#7F1D1D;">Nama Barang</label>
+                    <input type="text" class="form-control item-nama-barang rounded-3 border-2" style="border-color:#FBBF24;" name="items[${index}][nama_barang]" value="${namaBarang}" placeholder="Contoh: Gula Pasir, Alpukat" required>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-medium">Qty</label>
-                    <input type="number" class="form-control item-qty" name="items[${index}][qty]" value="${qty}" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
+                    <label class="form-label small fw-bold" style="color:#7F1D1D;">Qty</label>
+                    <input type="number" class="form-control item-qty rounded-3 border-2" style="border-color:#FBBF24;" name="items[${index}][qty]" value="${qty}" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-medium">Harga</label>
+                    <label class="form-label small fw-bold" style="color:#7F1D1D;">Harga Satuan</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light fw-semibold border-end-0">Rp</span>
-                        <input type="number" class="form-control item-harga border-start-0" name="items[${index}][harga]" value="${harga}" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
+                        <span class="input-group-text rounded-start-3 fw-bold border-2 border-end-0" style="background: linear-gradient(135deg,#450A0A,#7F1D1D); color:#FDE68A; border-color:#7F1D1D;">Rp</span>
+                        <input type="number" class="form-control item-harga rounded-end-3 border-start-0 border-2" style="border-color:#7F1D1D; background:#FFF;" name="items[${index}][harga]" value="${harga}" min="1" required oninput="calculateTotalForContainer(this.closest('[data-total-target]'))">
                     </div>
                 </div>
                 <div class="col-md-1">
-                    <button type="button" class="btn btn-outline-danger w-100" onclick="removeItemRow(this)">
-                        <i class="bi bi-trash"></i>
+                    <button type="button" class="btn-hapus-item-row w-100" onclick="removeItemRow(this)">
+                        <i class="bi bi-trash3"></i>
                     </button>
                 </div>
             </div>
@@ -1256,45 +1298,118 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <style>
-.transition-card {
-    transition: all 0.25s ease;
-}
+.cursor-pointer { cursor: pointer; }
+.transition-card { transition: all 0.3s ease; }
 .transition-card:hover {
-    background: rgba(59, 130, 246, 0.03) !important;
+    background: linear-gradient(90deg, rgba(254,243,199,0.28), rgba(254,226,226,0.32)) !important;
+    transform: translateX(4px);
+    border-bottom-color: #FBBF24 !important;
 }
-.cursor-pointer {
-    cursor: pointer;
-}
-.action-btn {
-    width: 38px;
-    height: 38px;
-    border: none;
-    border-radius: 12px;
+
+/* ================= TOMBOL KOLOM AKSI DI TABEL ================= */
+.btn-edit-row, .btn-del-row {
+    width: 44px; height: 44px;
+    border: 2.5px solid transparent;
+    border-radius: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    transition: all 0.2s ease;
-    background: #f3f4f6;
-    color: #6b7280;
+    font-size: 17px;
+    transition: all 0.22s ease;
+    cursor: pointer;
 }
-.action-btn:hover {
-    transform: scale(1.05);
+.btn-edit-row {
+    background: linear-gradient(135deg,#FEF3C7,#FDE68A);
+    color: #7F1D1D;
+    border-color: #FBBF24;
+    box-shadow: 0 4px 10px rgba(251,191,36,0.25);
 }
-.action-btn.edit {
-    background: #FEF3C7;
-    color: #92400E;
-}
-.action-btn.edit:hover {
-    background: #FDE68A;
-}
-.action-btn.delete {
-    background: #FEE2E2;
+.btn-edit-row:hover { transform: translateY(-2px) rotate(-3deg); box-shadow: 0 8px 16px rgba(251,191,36,0.45); }
+.btn-del-row {
+    background: linear-gradient(135deg,#FEF2F2,#FEE2E2);
     color: #991B1B;
+    border-color: rgba(153,27,27,0.4);
+    box-shadow: 0 4px 10px rgba(153,27,27,0.18);
 }
-.action-btn.delete:hover {
-    background: #FECACA;
+.btn-del-row:hover { transform: translateY(-2px) rotate(3deg); background: linear-gradient(135deg,#FEE2E2,#FECACA); box-shadow: 0 8px 16px rgba(153,27,27,0.4); }
+
+/* ================= TOMBOL DELETE ITEM ROW DI FORM ================= */
+.btn-hapus-item-row {
+    height: 48px;
+    border: 2.5px solid #991B1B;
+    border-radius: 14px;
+    background: linear-gradient(135deg,#FEF2F2,#FEE2E2);
+    color: #991B1B;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
+.btn-hapus-item-row:hover {
+    background: linear-gradient(135deg,#FEE2E2,#FECACA);
+    transform: scale(1.06);
+    box-shadow: 0 6px 14px rgba(153,27,27,0.3);
+}
+
+/* ================= TOMBOL TAMBAH ITEM ROW ================= */
+.btn-tambah-item {
+    background: linear-gradient(135deg,#FFFBEB,#FEF3C7);
+    color: #7F1D1D;
+    border: 2.5px dashed #FBBF24;
+    border-radius: 16px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.btn-tambah-item:hover {
+    background: linear-gradient(135deg,#FEF3C7,#FDE68A);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(251,191,36,0.3);
+    border-style: solid;
+}
+
+/* ================= TOMBOL MODAL FOOTER ================= */
+.btn-edit-modal, .btn-del-modal, .btn-tutup-modal, .btn-batal-modal, .btn-simpan-modal {
+    border: 2.5px solid transparent;
+    border-radius: 16px;
+    padding: 11px 22px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: 0.2px;
+}
+.btn-edit-modal {
+    background: linear-gradient(135deg,#FEF3C7,#FDE68A);
+    color: #7F1D1D;
+    border-color: #FBBF24;
+    box-shadow: 0 6px 14px rgba(251,191,36,0.3);
+}
+.btn-edit-modal:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(251,191,36,0.5); color:#450A0A; }
+.btn-del-modal {
+    background: linear-gradient(135deg,#7F1D1D,#991B1B,#B91C1C);
+    color: #FDE68A;
+    border-color: #FCA5A5;
+    box-shadow: 0 6px 14px rgba(153,27,27,0.35);
+}
+.btn-del-modal:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 12px 22px rgba(153,27,27,0.5); color: #FFF; }
+.btn-tutup-modal, .btn-batal-modal {
+    background: linear-gradient(135deg,#F3F4F6,#E5E7EB);
+    color: #374151;
+    border-color: #9CA3AF;
+    box-shadow: 0 4px 10px rgba(107,114,128,0.18);
+}
+.btn-tutup-modal:hover, .btn-batal-modal:hover { transform: translateY(-2px); background: linear-gradient(135deg,#E5E7EB,#D1D5DB); }
+.btn-simpan-modal {
+    background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%);
+    color: #FDE68A;
+    border-color: #FBBF24;
+    box-shadow: 0 10px 22px rgba(153,27,27,0.4);
+}
+.btn-simpan-modal:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(153,27,27,0.55); color: #FFF; filter: brightness(1.08); }
 </style>
 
 <?php include '../includes/footer.php'; ?>
