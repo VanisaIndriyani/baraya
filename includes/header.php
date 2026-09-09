@@ -56,71 +56,96 @@ function is_active($pages) {
 
     <!-- Menu Utama -->
     <div class="menu-section">
-        <div class="menu-label">Menu Utama</div>
-        <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="menu-item <?php echo is_active(['admin_dashboard.php']); ?>">
-            <i class="bi bi-house-door-fill"></i>
-            <span>Dashboard</span>
-        </a>
+        <button type="button" class="menu-label menu-kategori-toggle w-100 text-start border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#collapseKatUtama" aria-expanded="true" aria-controls="collapseKatUtama">
+            <span>Menu Utama</span>
+            <i class="bi bi-chevron-right ms-auto menu-kategori-chevron"></i>
+        </button>
+        <div class="collapse show" id="collapseKatUtama">
+            <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="menu-item <?php echo is_active(['admin_dashboard.php']); ?>">
+                <i class="bi bi-house-door-fill"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
     </div>
 
     <!-- Transaksi Harian -->
     <div class="menu-section">
-        <div class="menu-label">Transaksi Harian</div>
-        <a href="<?php echo $base_url; ?>/pages/penjualan.php" class="menu-item <?php echo is_active(['penjualan.php']); ?>">
-            <i class="bi bi-cart-check-fill"></i>
-            <span>Penjualan</span>
-        </a>
-        <a href="<?php echo $base_url; ?>/pages/pembelian.php" class="menu-item <?php echo is_active(['pembelian.php']); ?>">
-            <i class="bi bi-bag-plus-fill"></i>
-            <span>Beli Bahan (Stok)</span>
-        </a>
-        <a href="<?php echo $base_url; ?>/pages/beli-harian.php" class="menu-item <?php echo is_active(['beli-harian.php']); ?>">
-            <i class="bi bi-bag-dash"></i>
-            <span>Beli Harian</span>
-        </a>
+        <button type="button" class="menu-label menu-kategori-toggle w-100 text-start border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#collapseKatTrxHarian" aria-expanded="true" aria-controls="collapseKatTrxHarian">
+            <span>Transaksi Harian</span>
+            <i class="bi bi-chevron-right ms-auto menu-kategori-chevron"></i>
+        </button>
+        <div class="collapse show" id="collapseKatTrxHarian">
+            <a href="<?php echo $base_url; ?>/pages/penjualan.php" class="menu-item <?php echo is_active(['penjualan.php']); ?>">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Penjualan</span>
+            </a>
+            <a href="<?php echo $base_url; ?>/pages/pembelian.php" class="menu-item <?php echo is_active(['pembelian.php']); ?>">
+                <i class="bi bi-bag-plus-fill"></i>
+                <span>Beli Bahan (Stok)</span>
+            </a>
+            <a href="<?php echo $base_url; ?>/pages/beli-harian.php" class="menu-item <?php echo is_active(['beli-harian.php']); ?>">
+                <i class="bi bi-bag-dash"></i>
+                <span>Beli Harian</span>
+            </a>
+        </div>
     </div>
 
     <!-- Menu Publik -->
     <div class="menu-section">
-        <div class="menu-label">Menu Publik</div>
-        <a href="<?php echo $base_url; ?>/pages/produk_kasir.php" class="menu-item <?php echo is_active(['produk_kasir.php']); ?>">
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Produk Kasir</span>
-        </a>
-        <a href="<?php echo $base_url; ?>/pages/transaksi_kasir.php" class="menu-item <?php echo is_active(['transaksi_kasir.php']); ?>">
-            <i class="bi bi-receipt-cutoff"></i>
-            <span>Transaksi Kasir</span>
-        </a>
-        <a href="<?php echo $base_url; ?>/kasir.php" target="_blank" class="menu-item">
-            <i class="bi bi-cash-register"></i>
-            <span>Buka Kasir <i class="bi bi-box-arrow-up-right ms-1" style="font-size:0.78rem; opacity:0.75;"></i></span>
-        </a>
+        <button type="button" class="menu-label menu-kategori-toggle w-100 text-start border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#collapseKatPublik" aria-expanded="false" aria-controls="collapseKatPublik">
+            <span>Menu Publik</span>
+            <i class="bi bi-chevron-right ms-auto menu-kategori-chevron"></i>
+        </button>
+        <div class="collapse" id="collapseKatPublik">
+            <a href="<?php echo $base_url; ?>/pages/produk_kasir.php" class="menu-item <?php echo is_active(['produk_kasir.php']); ?>">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Produk Kasir</span>
+            </a>
+            <a href="<?php echo $base_url; ?>/pages/transaksi_kasir.php" class="menu-item <?php echo is_active(['transaksi_kasir.php']); ?>">
+                <i class="bi bi-receipt-cutoff"></i>
+                <span>Transaksi Kasir</span>
+            </a>
+            <a href="<?php echo $base_url; ?>/kasir.php" target="_blank" class="menu-item">
+                <i class="bi bi-cash-register"></i>
+                <span>Buka Kasir <i class="bi bi-box-arrow-up-right ms-1" style="font-size:0.78rem; opacity:0.75;"></i></span>
+            </a>
+        </div>
     </div>
 
     <!-- Uang & Keuangan -->
     <div class="menu-section">
-        <div class="menu-label">Uang & Keuangan</div>
-        <a href="<?php echo $base_url; ?>/pages/saldo_rekening.php" class="menu-item <?php echo is_active(['saldo_rekening.php']); ?>">
-            <i class="bi bi-bank2"></i>
-            <span>Rekening Penjualan</span>
-        </a>
-        <a href="<?php echo $base_url; ?>/pages/biaya-wajib.php" class="menu-item <?php echo is_active(['biaya-wajib.php']); ?>">
-            <i class="bi bi-calendar2-check"></i>
-            <span>Biaya Rutin</span>
-        </a>
+        <button type="button" class="menu-label menu-kategori-toggle w-100 text-start border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#collapseKatKeuangan" aria-expanded="false" aria-controls="collapseKatKeuangan">
+            <span>Uang & Keuangan</span>
+            <i class="bi bi-chevron-right ms-auto menu-kategori-chevron"></i>
+        </button>
+        <div class="collapse" id="collapseKatKeuangan">
+            <a href="<?php echo $base_url; ?>/pages/saldo_rekening.php" class="menu-item <?php echo is_active(['saldo_rekening.php']); ?>">
+                <i class="bi bi-bank2"></i>
+                <span>Rekening Penjualan</span>
+            </a>
+            <a href="<?php echo $base_url; ?>/pages/biaya-wajib.php" class="menu-item <?php echo is_active(['biaya-wajib.php']); ?>">
+                <i class="bi bi-calendar2-check"></i>
+                <span>Biaya Rutin</span>
+            </a>
+        </div>
     </div>
 
     <!-- Owner & Laporan -->
     <div class="menu-section">
-        <div class="menu-label">Owner & Laporan</div>
-        <a href="<?php echo $base_url; ?>/pages/modal-owner.php" class="menu-item <?php echo is_active(['modal-owner.php']); ?>">
-            <i class="bi bi-wallet2"></i>
-            <span>Gaji Owner</span>
-        </a>
-        <a href="<?php echo $base_url; ?>/pages/hutang-owner.php" class="menu-item <?php echo is_active(['hutang-owner.php']); ?>">
-            <i class="bi bi-cash-stack"></i>
-            <span>Utang Owner</span>
-        </a>
+        <button type="button" class="menu-label menu-kategori-toggle w-100 text-start border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#collapseKatOwner" aria-expanded="false" aria-controls="collapseKatOwner">
+            <span>Owner & Laporan</span>
+            <i class="bi bi-chevron-right ms-auto menu-kategori-chevron"></i>
+        </button>
+        <div class="collapse" id="collapseKatOwner">
+            <a href="<?php echo $base_url; ?>/pages/modal-owner.php" class="menu-item <?php echo is_active(['modal-owner.php']); ?>">
+                <i class="bi bi-wallet2"></i>
+                <span>Gaji Owner</span>
+            </a>
+            <a href="<?php echo $base_url; ?>/pages/hutang-owner.php" class="menu-item <?php echo is_active(['hutang-owner.php']); ?>">
+                <i class="bi bi-cash-stack"></i>
+                <span>Utang Owner</span>
+            </a>
+        </div>
     </div>
 
     <div class="sidebar-footer">

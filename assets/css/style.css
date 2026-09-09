@@ -123,20 +123,80 @@ body > .sidebar,
 }
 
 .menu-section {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 2;
 }
 
 .menu-label {
     font-family: 'Poppins', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    color: rgba(251, 191, 36, 0.75);
+    font-size: 11.5px;
+    font-weight: 800;
+    color: rgba(251, 191, 36, 0.78);
     text-transform: uppercase;
-    letter-spacing: 1.4px;
-    padding: 0 14px;
-    margin-bottom: 12px;
+    letter-spacing: 1.6px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none !important;
+    box-shadow: none;
+}
+
+.menu-label:hover,
+.menu-label.menu-kategori-toggle:hover {
+    background: rgba(251, 191, 36, 0.15);
+    color: #FBBF24 !important;
+    transform: translateX(3px);
+    letter-spacing: 1.8px;
+}
+
+.menu-label:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(251,191,36,0.22), 0 0 0 4px rgba(69,10,10,0.35) !important;
+}
+
+.menu-kategori-chevron {
+    font-size: 14px;
+    color: rgba(251, 191, 36, 0.65);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), color 0.28s ease !important;
+    margin-left: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    line-height: 1 !important;
+    border-radius: 7px;
+    flex-shrink: 0;
+    transform: rotate(0deg);
+}
+
+.menu-label.menu-kategori-toggle[aria-expanded="true"] .menu-kategori-chevron,
+.menu-kategori-toggle[aria-expanded="true"] > .menu-kategori-chevron {
+    transform: rotate(90deg) !important;
+    color: #FBBF24 !important;
+    background: rgba(251, 191, 36, 0.12);
+}
+
+/* BS5 collapse animasi di sidebar: smooth & lebar konsisten */
+#sidebar .collapse,
+#sidebar .collapsing {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+#sidebar .collapse.show + .menu-section,
+#sidebar .collapsing + .menu-section {
+    margin-top: 20px;
 }
 
 .menu-item {
