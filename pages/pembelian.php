@@ -777,24 +777,24 @@ if ($search !== '') {
     <div class="table-responsive px-1 pb-1">
         <table class="table table-hover align-middle mb-0" style="min-width: 920px;">
             <thead>
-                <tr style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%);">
-                    <th class="px-4 py-4 fw-black border-0" style="border-top-left-radius: 18px; letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
-                        <i class="bi bi-calendar3 me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">TANGGAL</span>
+                <tr>
+                    <th class="fw-black border-0" style="padding:18px 20px 18px 20px !important; border-top-left-radius: 18px; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
+                        <i class="bi bi-calendar3 me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">TANGGAL</span>
                     </th>
-                    <th class="px-3 py-4 fw-black border-0" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
-                        <i class="bi bi-receipt me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">NOTA</span>
+                    <th class="fw-black border-0" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
+                        <i class="bi bi-receipt me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">NOTA</span>
                     </th>
-                    <th class="px-3 py-4 fw-black border-0" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
-                        <i class="bi bi-box-seam me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">ITEM BARANG</span>
+                    <th class="fw-black border-0" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
+                        <i class="bi bi-box-seam me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">ITEM BARANG</span>
                     </th>
-                    <th class="px-3 py-4 fw-black border-0" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
-                        <i class="bi bi-credit-card me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">METODE</span>
+                    <th class="fw-black border-0" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
+                        <i class="bi bi-credit-card me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">METODE</span>
                     </th>
-                    <th class="px-3 py-4 fw-black border-0 text-end" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
-                        <i class="bi bi-cash-coin me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">TOTAL</span>
+                    <th class="fw-black border-0 text-end" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
+                        <i class="bi bi-cash-coin me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">TOTAL</span>
                     </th>
-                    <th class="px-4 py-4 fw-black border-0 text-center" style="border-top-right-radius: 18px; letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
-                        <i class="bi bi-gear-wide-connected me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">AKSI</span>
+                    <th class="fw-black border-0 text-center" style="padding:18px 20px 18px 20px !important; border-top-right-radius: 18px; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
+                        <i class="bi bi-gear-wide-connected me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">AKSI</span>
                     </th>
                 </tr>
             </thead>
