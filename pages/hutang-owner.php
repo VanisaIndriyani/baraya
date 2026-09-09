@@ -181,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_hutang = (int) ($_POST['id_hutang'] ?? 0);
         $jumlah_bayar = (float) ($_POST['jumlah_bayar'] ?? 0);
         $tanggal_bayar = $_POST['tanggal_bayar'] ?? date('Y-m-d');
+        $bayar_tanpa_kas = ($_POST['bayar_tanpa_kas'] ?? '') === 'on';
 
         try {
             if ($jumlah_bayar <= 0) {
@@ -198,22 +199,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Jumlah bayar melebihi sisa hutang (Rp ' . number_format($hutang['sisa'], 0, ',', '.') . ').');
             }
 
-            $rekening_ops = ambilRekeningOperasional($pdo);
-            if (!$rekening_ops) {
-                throw new Exception('Rekening Kas Operasional belum tersedia.');
-            }
-            if ((float) $rekening_ops['saldo'] < $jumlah_bayar) {
-                throw new Exception('Saldo Kas Operasional (Rp ' . number_format($rekening_ops['saldo'], 0, ',', '.') . ') tidak cukup untuk membayar owner Rp ' . number_format($jumlah_bayar, 0, ',', '.') . '.');
-            }
-
             $pdo->beginTransaction();
 
-            $keterangan = 'Pembayaran Hutang / Owner Tarik Uang (' . labelTipeHutang($hutang['tipe_hutang']) . ')';
+            $keterangan = ($bayar_tanpa_kas ? 'Pembayaran Hutang Owner (Dibayar Diluar / Uang Pribadi - tanpa potong Kas Operasional) : ' : 'Pembayaran Hutang / Owner Tarik Uang (') . labelTipeHutang($hutang['tipe_hutang']) . ')';
             $stmt = $pdo->prepare("INSERT INTO hutang_owner_pembayaran (id_hutang, jumlah, tanggal) VALUES (?, ?, ?)");
             $stmt->execute([$id_hutang, $jumlah_bayar, $tanggal_bayar]);
 
-            financeInsertSaldoTransaksi($pdo, (int) $rekening_ops['id'], null, 'kredit', $jumlah_bayar, $keterangan, $tanggal_bayar);
-            financeAdjustSaldoRekening($pdo, (int) $rekening_ops['id'], -$jumlah_bayar);
+            if (!$bayar_tanpa_kas) {
+                $rekening_ops = ambilRekeningOperasional($pdo);
+                if (!$rekening_ops) {
+                    throw new Exception('Rekening Kas Operasional belum tersedia.');
+                }
+                if ((float) $rekening_ops['saldo'] < $jumlah_bayar) {
+                    throw new Exception('Saldo Kas Operasional (Rp ' . number_format($rekening_ops['saldo'], 0, ',', '.') . ') tidak cukup untuk membayar owner Rp ' . number_format($jumlah_bayar, 0, ',', '.') . '. Jika ingin bayar tanpa kas ops, centang opsi "Bayar tanpa memotong Kas Operasional".');
+                }
+                financeInsertSaldoTransaksi($pdo, (int) $rekening_ops['id'], null, 'kredit', $jumlah_bayar, $keterangan, $tanggal_bayar);
+                financeAdjustSaldoRekening($pdo, (int) $rekening_ops['id'], -$jumlah_bayar);
+            }
 
             $dibayar_baru = (float) $hutang['dibayar'] + $jumlah_bayar;
             $status = $dibayar_baru >= (float) $hutang['jumlah'] ? 'lunas' : 'belum_lunas';
@@ -221,12 +223,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$status, $id_hutang]);
 
             $pdo->commit();
-            tampilkanAlertHutang('success', 'Berhasil', 'Pembayaran / Penarikan owner Rp ' . number_format($jumlah_bayar, 0, ',', '.') . ' sukses. Hutang berkurang & Kas Operasional berkurang.', $redirect_url);
+            $pesan_ok = $bayar_tanpa_kas
+                ? ('Pembayaran hutang Rp ' . number_format($jumlah_bayar, 0, ',', '.') . ' sukses (Dicatat tanpa memotong Kas Operasional). Hutang berkurang, Status otomatis update.')
+                : ('Pembayaran / Penarikan owner Rp ' . number_format($jumlah_bayar, 0, ',', '.') . ' sukses. Hutang berkurang & Kas Operasional berkurang.');
+            tampilkanAlertHutang('success', 'Berhasil', $pesan_ok, $redirect_url, 2200);
         } catch (Exception $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            tampilkanAlertHutang('error', 'Gagal', $e->getMessage(), null, 3000);
+            tampilkanAlertHutang('error', 'Gagal Bayar Hutang', $e->getMessage(), null, 6500);
         }
     }
 
@@ -377,6 +382,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_hutang = (int) ($_POST['id_hutang'] ?? 0);
         $jumlah_bayar = (float) ($_POST['jumlah_bayar'] ?? 0);
         $tanggal_bayar = $_POST['tanggal_bayar'] ?? date('Y-m-d');
+        $bayar_tanpa_kas = ($_POST['bayar_tanpa_kas'] ?? '') === 'on';
 
         try {
             if ($jumlah_bayar <= 0) {
@@ -394,14 +400,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Jumlah bayar melebihi sisa hutang.');
             }
 
-            $rekening_ops = ambilRekeningOperasional($pdo);
-            if (!$rekening_ops) {
-                throw new Exception('Rekening Kas Operasional belum tersedia.');
-            }
-            if ((float) $rekening_ops['saldo'] < $jumlah_bayar) {
-                throw new Exception('Saldo Kas Operasional (Rp ' . number_format($rekening_ops['saldo'], 0, ',', '.') . ') tidak cukup untuk bayar hutang Rp ' . number_format($jumlah_bayar, 0, ',', '.') . '.');
-            }
-
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("INSERT INTO hutang_owner_pembayaran (id_hutang, jumlah, tanggal) VALUES (?, ?, ?)");
@@ -417,17 +415,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("UPDATE hutang_owner SET status = ? WHERE id = ?");
             $stmt->execute([$status, $id_hutang]);
 
-            $ket_sync = 'Bayar Utang Manual (' . labelTipeHutang($hutang['tipe_hutang']) . ') - Rp ' . number_format($jumlah_bayar, 0, ',', '.');
-            financeInsertSaldoTransaksi($pdo, (int) $rekening_ops['id'], null, 'kredit', $jumlah_bayar, $ket_sync, $tanggal_bayar);
-            financeAdjustSaldoRekening($pdo, (int) $rekening_ops['id'], -1 * $jumlah_bayar);
+            if (!$bayar_tanpa_kas) {
+                $rekening_ops = ambilRekeningOperasional($pdo);
+                if (!$rekening_ops) {
+                    throw new Exception('Rekening Kas Operasional belum tersedia.');
+                }
+                if ((float) $rekening_ops['saldo'] < $jumlah_bayar) {
+                    throw new Exception('Saldo Kas Operasional (Rp ' . number_format($rekening_ops['saldo'], 0, ',', '.') . ') tidak cukup untuk bayar hutang Rp ' . number_format($jumlah_bayar, 0, ',', '.') . '. Centang opsi "Bayar tanpa potong Kas Operasional" jika dibayar diluar sistem.');
+                }
+                $ket_sync = 'Bayar Utang Manual (' . labelTipeHutang($hutang['tipe_hutang']) . ') - Rp ' . number_format($jumlah_bayar, 0, ',', '.');
+                financeInsertSaldoTransaksi($pdo, (int) $rekening_ops['id'], null, 'kredit', $jumlah_bayar, $ket_sync, $tanggal_bayar);
+                financeAdjustSaldoRekening($pdo, (int) $rekening_ops['id'], -1 * $jumlah_bayar);
+            }
 
             $pdo->commit();
-            tampilkanAlertHutang('success', 'Berhasil', 'Pembayaran hutang berhasil disimpan. Kas Operasional berkurang Rp ' . number_format($jumlah_bayar, 0, ',', '.') . '.', $redirect_url);
+            $pesan_ok = $bayar_tanpa_kas
+                ? ('Pembayaran hutang Rp ' . number_format($jumlah_bayar, 0, ',', '.') . ' berhasil disimpan (Tanpa potong Kas Operasional). Hutang berkurang & Status otomatis update.')
+                : ('Pembayaran hutang berhasil disimpan. Kas Operasional berkurang Rp ' . number_format($jumlah_bayar, 0, ',', '.') . '.');
+            tampilkanAlertHutang('success', 'Berhasil', $pesan_ok, $redirect_url, 2200);
         } catch (Exception $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            tampilkanAlertHutang('error', 'Gagal', $e->getMessage(), null, 3000);
+            tampilkanAlertHutang('error', 'Gagal Bayar Hutang', $e->getMessage(), null, 6500);
         }
     }
 }
@@ -827,8 +837,18 @@ unset($group);
                                 <label class="form-label">Jumlah Bayar</label>
                                 <input type="number" class="form-control" name="jumlah_bayar" min="1" step="0.01" max="<?php echo htmlspecialchars($h['sisa']); ?>" required>
                             </div>
-                            <div class="alert alert-light mb-0">
+                            <div class="alert alert-light mb-3">
                                 Sisa hutang saat ini: <strong>Rp <?php echo number_format($h['sisa'], 0, ',', '.'); ?></strong>
+                            </div>
+                            <div class="form-check border rounded-4 p-3 bg-success bg-opacity-10 border-success mb-0">
+                                <input class="form-check-input form-check-input-lg" type="checkbox" name="bayar_tanpa_kas" id="bayarTanpaKas<?php echo $h['id']; ?>" checked>
+                                <label class="form-check-label fw-bold text-success" for="bayarTanpaKas<?php echo $h['id']; ?>">
+                                    <i class="bi bi-wallet2 me-1"></i>Bayar TANPA memotong Kas Operasional
+                                </label>
+                                <div class="small text-success mt-1 ms-4">
+                                    Centang jika dibayar pakai uang pribadi / diluar sistem (hanya ubah status hutang).
+                                    <br>Hilangkan centang jika diambil dari Kas Operasional (saldo rekening berkurang).
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer border-0">
@@ -1031,7 +1051,7 @@ unset($group);
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger mb-3">
                         Owner mengambil uang dari <b>Kas Operasional</b> + otomatis mengurangi Utang Owner.
                     </div>
                     <div class="mb-3">
@@ -1055,12 +1075,22 @@ unset($group);
                     <div class="mb-3">
                         <label class="form-label">Jumlah yang Dibayar (Diambil Owner)</label>
                         <input type="number" class="form-control" name="jumlah_bayar" min="1" step="0.01" max="<?php echo htmlspecialchars((float) $h['sisa']); ?>" required>
-                        <div class="form-text">Maksimal Rp <?php echo number_format((float) $h['sisa'], 0, ',', '.'); ?> (sisa utang). Tidak boleh melebihi saldo Kas Operasional.</div>
+                        <div class="form-text">Maksimal Rp <?php echo number_format((float) $h['sisa'], 0, ',', '.'); ?> (sisa utang).</div>
+                    </div>
+                    <div class="form-check border rounded-4 p-3 bg-success bg-opacity-10 border-success mb-0">
+                        <input class="form-check-input form-check-input-lg" type="checkbox" name="bayar_tanpa_kas" id="ownerTarikTanpaKas<?php echo (int) $h['id']; ?>" checked>
+                        <label class="form-check-label fw-bold text-success" for="ownerTarikTanpaKas<?php echo (int) $h['id']; ?>">
+                            <i class="bi bi-wallet2 me-1"></i>Bayar TANPA potong Kas Operasional
+                        </label>
+                        <div class="small text-success mt-1 ms-4">
+                            ✅ Default = Hanya catat pembayaran &amp; ubah status hutang (uang pribadi owner / dibayar diluar).
+                            <br>❌ Jika hapus centang = Otomatis KURANGI Saldo Kas Operasional sesuai jumlah bayar.
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">Konfirmasi - Kurangi Kas Operasional</button>
+                    <button type="submit" class="btn btn-danger">Konfirmasi Simpan Pembayaran</button>
                 </div>
             </form>
         </div>
