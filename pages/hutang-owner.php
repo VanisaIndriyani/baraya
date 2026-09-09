@@ -418,7 +418,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$status, $id_hutang]);
 
             $ket_sync = 'Bayar Utang Manual (' . labelTipeHutang($hutang['tipe_hutang']) . ') - Rp ' . number_format($jumlah_bayar, 0, ',', '.');
-            financeInsertSaldoTransaksi($pdo, (int) $rekening_ops['id'], $periode_aktif ? $periode_aktif['id'] : null, 'kredit', $jumlah_bayar, $ket_sync, $tanggal_bayar);
+            financeInsertSaldoTransaksi($pdo, (int) $rekening_ops['id'], null, 'kredit', $jumlah_bayar, $ket_sync, $tanggal_bayar);
             financeAdjustSaldoRekening($pdo, (int) $rekening_ops['id'], -1 * $jumlah_bayar);
 
             $pdo->commit();
