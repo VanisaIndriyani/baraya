@@ -82,14 +82,52 @@ $total_sisa_hutang = array_sum(array_column($sisa_hutang, 'sisa'));
 $stok_hampir_habis = $pdo->query("SELECT * FROM barang WHERE stok <= min_stok ORDER BY stok ASC")->fetchAll();
 
 try {
-    $sql_pendapatan_chart = "SELECT DATE(tanggal) as tanggal, COALESCE(SUM(total_pendapatan), 0) as total FROM penjualan WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY DATE(tanggal) ORDER BY tanggal ASC";
+    $sql_pendapatan_chart = "
+        SELECT DATE(tanggal_agg) as tanggal, COALESCE(SUM(jumlah_agg), 0) as total
+        FROM (
+            SELECT DATE(tanggal) as tanggal_agg, COALESCE(SUM(total_pendapatan), 0) as jumlah_agg
+            FROM penjualan
+            WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(tanggal)
+            UNION ALL
+            SELECT DATE(tgl) as tanggal_agg, COALESCE(SUM(total), 0) as jumlah_agg
+            FROM kasir_transaksi
+            WHERE tgl >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(tgl)
+        ) agg_pendapatan
+        GROUP BY DATE(tanggal_agg)
+        ORDER BY tanggal_agg ASC
+    ";
     $pendapatan_30_hari = dashboardFetchAll($pdo, $sql_pendapatan_chart);
 } catch (Exception $e) {
     $pendapatan_30_hari = [];
 }
 
 try {
-    $sql_pengeluaran_chart = "SELECT DATE(tanggal) as tanggal, COALESCE(SUM(jumlah), 0) as total FROM pengeluaran WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY DATE(tanggal) ORDER BY tanggal ASC";
+    $sql_pengeluaran_chart = "
+        SELECT DATE(tanggal_agg) as tanggal, COALESCE(SUM(jumlah_agg), 0) as total
+        FROM (
+            -- Sumber 1: Pembelian bahan stok (pages/pembelian.php) -> kolom tanggal + total
+            SELECT DATE(tanggal) as tanggal_agg, COALESCE(SUM(total), 0) as jumlah_agg
+            FROM pembelian
+            WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(tanggal)
+            UNION ALL
+            -- Sumber 2: Beli harian rutin (pages/beli-harian.php) -> kolom tanggal + subtotal
+            SELECT DATE(tanggal) as tanggal_agg, COALESCE(SUM(subtotal), 0) as jumlah_agg
+            FROM beli_harian
+            WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(tanggal)
+            UNION ALL
+            -- Sumber 3: Table lawas pengeluaran (backup data lama jika ada)
+            SELECT DATE(tanggal) as tanggal_agg, COALESCE(SUM(jumlah), 0) as jumlah_agg
+            FROM pengeluaran
+            WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(tanggal)
+        ) agg_pengeluaran
+        GROUP BY DATE(tanggal_agg)
+        ORDER BY tanggal_agg ASC
+    ";
     $pengeluaran_30_hari = dashboardFetchAll($pdo, $sql_pengeluaran_chart);
 } catch (Exception $e) {
     $pengeluaran_30_hari = [];

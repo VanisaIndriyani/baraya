@@ -778,12 +778,24 @@ if ($search !== '') {
         <table class="table table-hover align-middle mb-0" style="min-width: 920px;">
             <thead>
                 <tr style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%);">
-                    <th class="px-4 py-4 fw-black text-white border-0" style="border-top-left-radius: 18px; letter-spacing:0.3px;">📅 Tanggal</th>
-                    <th class="px-3 py-4 fw-black text-white border-0" style="letter-spacing:0.3px;">🖼 Nota</th>
-                    <th class="px-3 py-4 fw-black text-white border-0" style="letter-spacing:0.3px;">📦 Item Barang</th>
-                    <th class="px-3 py-4 fw-black text-white border-0" style="letter-spacing:0.3px;">💳 Metode</th>
-                    <th class="px-3 py-4 fw-black text-white border-0 text-end" style="letter-spacing:0.3px;">💰 Total</th>
-                    <th class="px-4 py-4 fw-black text-white border-0 text-center" style="border-top-right-radius: 18px; letter-spacing:0.3px;">⚙️ Aksi</th>
+                    <th class="px-4 py-4 fw-black border-0" style="border-top-left-radius: 18px; letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
+                        <i class="bi bi-calendar3 me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">TANGGAL</span>
+                    </th>
+                    <th class="px-3 py-4 fw-black border-0" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
+                        <i class="bi bi-receipt me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">NOTA</span>
+                    </th>
+                    <th class="px-3 py-4 fw-black border-0" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
+                        <i class="bi bi-box-seam me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">ITEM BARANG</span>
+                    </th>
+                    <th class="px-3 py-4 fw-black border-0" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
+                        <i class="bi bi-credit-card me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">METODE</span>
+                    </th>
+                    <th class="px-3 py-4 fw-black border-0 text-end" style="letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
+                        <i class="bi bi-cash-coin me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">TOTAL</span>
+                    </th>
+                    <th class="px-4 py-4 fw-black border-0 text-center" style="border-top-right-radius: 18px; letter-spacing: 0.4px; color:#FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(69,10,10,0.9), 0 0 3px rgba(251,191,36,0.55);">
+                        <i class="bi bi-gear-wide-connected me-2" style="font-size:15px; color:#FDE68A; display:inline-block; vertical-align:-2px;"></i><span style="color:#FFFFFF; opacity:1; font-size:13.5px;">AKSI</span>
+                    </th>
                 </tr>
             </thead>
             <tbody class="border-top-0">
