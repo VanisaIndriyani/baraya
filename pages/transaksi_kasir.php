@@ -170,30 +170,22 @@ if ($aksiGet === 'cetak_resi' && $idGet > 0) {
         $qty = (int)$it['qty'];
         $sub = (int)$it['subtotal'];
         $itemsHtml .= '
-        <div class="receipt-item-card">
+        <div class="receipt-item">
             <div class="receipt-item-top">
                 <div class="receipt-item-nama">
                     ' . htmlspecialchars($nama) . '
-                    <div class="receipt-item-harga">' . formatRp($hargaSat) . ' x ' . $qty . '</div>
+                    <div class="receipt-item-harga-satuan">' . str_replace('Rp ','Rp ', formatRp($hargaSat)) . ' x ' . $qty . '</div>
                 </div>
-                <div class="receipt-item-kanan receipt-subtotal-item">' . str_replace('Rp ','', formatRp($sub)) . '</div>
+                <div class="receipt-item-kanan receipt-subtotal-item">' . str_replace('Rp ','Rp', formatRp($sub)) . '</div>
             </div>
         </div>';
     }
 
     $badgeMetode = '';
     if ($paymentMethod === 'QRIS') {
-        $badgeMetode = '<div class="badge-pay-wrapper">
-            <div class="badge-pay-line"></div>
-            <span class="badge-pay-qris"><i class="bi bi-qr-code-scan"></i> PEMBAYARAN: QRIS (NON TUNAI)</span>
-            <div class="badge-pay-line"></div>
-        </div>';
+        $badgeMetode = '<div class="receipt-pay-method">PEMBAYARAN: QRIS (NON TUNAI)</div>';
     } else {
-        $badgeMetode = '<div class="badge-pay-wrapper">
-            <div class="badge-pay-line"></div>
-            <span class="badge-pay-cash"><i class="bi bi-wallet2"></i> PEMBAYARAN: CASH (TUNAI)</span>
-            <div class="badge-pay-line"></div>
-        </div>';
+        $badgeMetode = '<div class="receipt-pay-method">PEMBAYARAN: CASH (TUNAI)</div>';
     }
 
     $bayarKembalianHtml = '';
@@ -217,89 +209,107 @@ if ($aksiGet === 'cetak_resi' && $idGet > 0) {
             <span class="label">TOTAL</span>
             <span class="value">' . str_replace('Rp ','Rp', formatRp($total)) . '</span>
         </div>
-        <div style="margin-top:6px;" class="badge-lunas"><i class="bi bi-check2-circle"></i> SUDAH LUNAS · QRIS NON TUNAI</div>';
+        <div class="receipt-lunas">SUDAH LUNAS - QRIS NON TUNAI</div>';
     }
 
     $alamatDuaBaris = str_replace(', Sleman, DIY 55281', '<br>Sleman DIY 55281', htmlspecialchars(TOKO_ALAMAT_SINGKAT));
 
     $htmlPrint = '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Cetak Resi ' . $noStr . '</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@500;600;700;800;900&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         * { box-sizing: border-box; }
-        body { margin:0; padding:0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .receipt { width:100%; max-width:58mm; min-width:58mm; margin:0 auto; padding:6px 4px; color:#000000; font-family: \'Inter\', \'Segoe UI\', Tahoma, sans-serif; font-size: 11.5px; line-height:1.4; background: transparent; max-height:none; min-height:auto; box-sizing: border-box; }
-        .receipt-card { border:2.5px solid #000000; border-radius:16px; padding:12px 10px 11px 10px; background:#FFFFFF; width:100%; box-sizing: border-box; }
+        body { margin:0; padding:0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: \'Courier New\', Courier, monospace; font-size:11.5px; line-height:1.55; }
+        .receipt { width:100%; max-width:58mm; min-width:58mm; margin:0 auto; padding:5mm 4mm 5mm 4mm; color:#000000; font-family: \'Courier New\', Courier, monospace; font-size: 11.5px; line-height:1.55; background: #FFFFFF; max-height:none; min-height:auto; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .receipt * { font-family: \'Courier New\', Courier, monospace !important; letter-spacing: 0 !important; line-height: 1.55 !important; }
+        .receipt-card { border: none; border-radius: 0; padding: 0; margin: 0; background: #FFFFFF; width: 100%; box-sizing: border-box; box-shadow: none; }
         .receipt-center { text-align:center; }
-        .receipt-divider-solid { border-bottom:1px solid #000000; margin:7px 0; height:0; }
-        .receipt-divider-dashed { border-bottom:1px dashed #374151; margin:6px 0; height:0; }
-        .receipt-title { font-weight:900; font-size:17px; letter-spacing:-0.2px; text-align:center; color:#000000; line-height:1.05; font-family:\'Poppins\',\'Inter\',sans-serif; }
-        .receipt-sub-nama { text-align:center; font-size:10.5px; color:#111827; font-weight:600; margin-top:3px; letter-spacing:0.1px; }
-        .receipt-alamat-wa { text-align:center; font-size:9.5px; color:#111827; margin-top:5px; line-height:1.25; font-weight:500; }
-        .receipt-alamat-wa i { color:#000000; font-size:10.2px; vertical-align:-1px; }
-        .receipt-meta-wrapper { display:flex; align-items:stretch; gap:0; margin-top:4px; overflow:hidden; }
-        .receipt-meta-col { flex:1; display:flex; align-items:center; gap:5px; padding:2px 3px; min-width:0; }
-        .receipt-meta-col:first-child { border-right:1px solid #000000; }
-        .receipt-meta-col i { font-size:13px; color:#000000; flex-shrink:0; }
-        .receipt-meta-label { font-weight:800; font-size:9.3px; color:#000000; line-height:1.1; letter-spacing:0px; }
-        .receipt-meta-value { font-size:8.9px; color:#000000; margin-top:1px; font-weight:600; font-family:\'Courier New\',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-0.3px; }
-        .badge-pay-wrapper { display:flex; align-items:center; justify-content:center; gap:6px; margin:5px 0 3px 0; }
-        .badge-pay-line { flex:1; height:1px; background:#111827; }
-        .badge-pay-cash, .badge-pay-qris { display:inline-flex; align-items:center; gap:5px; padding:3.5px 10px; border-radius:99px; font-size:9.6px; font-weight:800; letter-spacing:0.1px; border:2px solid #000000; color:#000000; background:#FFFFFF; white-space:nowrap; }
-        .badge-pay-cash i, .badge-pay-qris i { font-size:10.5px; }
-        .badge-lunas { display:block; text-align:center; padding:4px 7px; border-radius:12px; background:#FFFFFF; color:#000000; font-weight:900; font-size:9.4px; border:2px solid #000000; letter-spacing:-0.1px; white-space:nowrap; overflow:hidden; }
-        .receipt-item-card { background:#F3F4F6; border-radius:10px; padding:7px 9px; margin-bottom:5px; border:1px solid #E5E7EB; }
-        .receipt-item-top { display:flex; justify-content:space-between; align-items:flex-start; gap:5px; }
-        .receipt-item-nama { flex:1; min-width:0; font-size:12px; font-weight:800; color:#000000; line-height:1.15; }
-        .receipt-item-harga { font-size:9.8px; color:#111827; margin-top:2px; font-weight:500; }
-        .receipt-item-kanan { flex-shrink:0; text-align:right; }
-        .receipt-subtotal-item { font-weight:900; color:#000000; font-size:12.5px; }
-        .receipt-total-row { display:flex; justify-content:space-between; align-items:center; padding:1px 2px; }
-        .receipt-total-row .label { font-weight:900; color:#000000; letter-spacing:0.2px; font-size:12px; font-family:\'Poppins\',sans-serif; }
-        .receipt-total-row .value { font-weight:900; color:#000000; font-family:\'Poppins\',sans-serif; }
-        .receipt-total-row.row-total { margin-bottom:1px; }
-        .receipt-total-row.row-total .value { font-size:13px; }
-        .receipt-total-row.row-bayar .label, .receipt-total-row.row-bayar .value { font-size:13.5px; }
-        .receipt-total-row.row-kembalian .label, .receipt-total-row.row-kembalian .value { font-size:14.5px; }
-        .receipt-footer-thank { text-align:center; margin-top:4px; line-height:1.1; font-family:\'Caveat\',\'Brush Script MT\',\'Lucida Handwriting\',cursive; font-size:17px; color:#000000; font-weight:700; }
-        .receipt-footer-hashtag { text-align:center; font-weight:600; font-size:9.8px; color:#111827; margin-top:2px; line-height:1.2; letter-spacing:0.1px; }
-        .receipt-footer-line { border-bottom:1px solid #111827; width:60%; margin:4px auto 0 auto; height:0; }
-        .receipt-footer-love { text-align:center; font-size:9px; color:#000000; font-weight:700; margin-top:3px; display:flex; align-items:center; justify-content:center; gap:6px; }
-        .receipt-footer-love span { flex: 0 0 20%; height:1px; background:#111827; max-width:60px; }
+        .receipt-divider { border: none; border-top: 1px dashed #374151; margin: 9px 0; height: 0; clear: both; }
+        .receipt-divider-solid { border: none; border-top: 1px solid #111827; margin: 8px 0; height: 0; clear: both; }
+        .receipt-divider-dashed { border: none; border-top: 1px dashed #374151; margin: 9px 0; height: 0; clear: both; }
+        .receipt-title { font-weight: 900; font-size: 15px; text-align: center; color: #000000; line-height: 1.15; letter-spacing: 0.3px; margin: 0 0 2px 0; }
+        .receipt-sub-nama { text-align: center; font-size: 10.5px; color: #374151; font-weight: 700; margin-top: 4px; line-height: 1.2; }
+        .receipt-alamat-wa { text-align: center; font-size: 10px; color: #374151; margin-top: 7px; line-height: 1.45; font-weight: 600; }
+        .receipt-meta-wrapper { margin-top: 9px; margin-bottom: 2px; display:block; }
+        .receipt-meta-row { display: flex; justify-content: flex-start; align-items: flex-start; gap: 5px; padding: 1.5px 0; }
+        .receipt-meta-label { font-weight: 900; font-size: 10px; color: #000000; flex: 0 0 auto; white-space: nowrap; }
+        .receipt-meta-value { font-size: 10px; color: #000000; font-weight: 700; flex: 1; min-width: 0; word-break: break-all; }
+        .receipt-pay-method { text-align: center; padding: 7px 0; border-top: 1px dashed #374151; border-bottom: 1px dashed #374151; font-weight: 900; font-size: 11px; color: #000000; margin: 9px 0 10px 0; letter-spacing: 0.35px; }
+        .receipt-lunas { text-align: center; margin-top: 8px; padding: 5px 0; font-weight: 900; font-size: 10.5px; color: #000000; letter-spacing: 0.25px; }
+        .receipt-section-label { font-weight: 900; font-size: 11px; color: #000000; margin-bottom: 6px; letter-spacing: 0.4px; padding-top: 2px; }
+        .receipt-item { padding: 5px 0 7px 0; border-bottom: 1px dashed #D1D5DB; margin-bottom: 3px; }
+        .receipt-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+        .receipt-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; padding-bottom: 1px; }
+        .receipt-item-nama { flex: 1; min-width: 0; font-size: 11.5px; font-weight: 800; color: #000000; line-height: 1.3; }
+        .receipt-item-harga-satuan, .receipt-item-harga { font-size: 10px; color: #4B5563; margin-top: 4px; font-weight: 600; line-height: 1.2; padding-left: 1px; }
+        .receipt-item-kanan { flex-shrink: 0; text-align: right; min-width: 0; padding-top: 1px; }
+        .receipt-subtotal-item { font-weight: 900; color: #000000; font-size: 11.5px; white-space: nowrap; }
+        .receipt-total-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; gap: 10px; }
+        .receipt-total-row .label { font-weight: 900; color: #000000; font-size: 11px; letter-spacing: 0.3px; flex: 0 0 auto; }
+        .receipt-total-row .value { font-weight: 900; color: #000000; font-size: 11px; text-align: right; flex: 1; min-width: 0; white-space: nowrap; }
+        .receipt-total-row.row-total { margin-top: 5px; padding-top: 7px; border-top: 1.5px solid #111827; margin-bottom:1px; }
+        .receipt-total-row.row-total .label, .receipt-total-row.row-total .value { font-size: 13px; font-weight: 900; }
+        .receipt-total-row.row-bayar { padding-top:5px; }
+        .receipt-total-row.row-bayar .label, .receipt-total-row.row-bayar .value { font-size: 11.5px; }
+        .receipt-total-row.row-kembalian { padding: 5px 0 2px 0; }
+        .receipt-total-row.row-kembalian .label, .receipt-total-row.row-kembalian .value { font-size: 12.5px; }
+        .receipt-footer-thank { text-align: center; margin-top: 10px; line-height: 1.4; font-size: 10.5px; color: #000000; font-weight: 800; }
+        .receipt-footer-bless { text-align:center; font-size:9.5px; color:#000000; font-weight:700; margin-top:4px; line-height:1.35; }
+        .receipt-footer-hashtag { text-align: center; font-weight: 700; font-size: 9.5px; color: #374151; margin-top: 6px; line-height: 1.35; letter-spacing: 0.15px; }
         @page { size: 58mm auto; margin: 0mm; }
         @media print {
-            html, body { width:100% !important; max-width:58mm !important; min-width:58mm !important; margin:0 !important; padding:0 !important; background:#FFFFFF !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow:visible !important; }
+            html, body { width:100% !important; max-width:58mm !important; min-width:58mm !important; margin:0 !important; padding:0 !important; background:#FFFFFF !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow:visible !important; font-size:11.5px !important; line-height:1.55 !important; }
             body > *:not(.receipt):not(.receipt *) { display:none !important; }
-            .receipt { display:block !important; visibility:visible !important; width:100% !important; max-width:58mm !important; min-width:58mm !important; position:absolute; left:0; top:0; margin:0; padding:2mm 1.5mm !important; page-break-inside:auto !important; page-break-after:avoid !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box !important; }
+            .receipt { display:block !important; visibility:visible !important; width:100% !important; max-width:58mm !important; min-width:58mm !important; position:absolute; left:0; top:0; margin:0 !important; padding:5mm 4mm 5mm 4mm !important; page-break-inside:auto !important; page-break-after:avoid !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box !important; background:#FFFFFF !important; font-size:11.5px !important; line-height:1.55 !important; }
+            .receipt * { line-height:1.55 !important; }
+            .receipt-divider { margin:9px 0 !important; }
+            .receipt-divider-solid, .receipt-divider-dashed { margin:8px 0 !important; }
+            .receipt-title { font-size:15px !important; line-height:1.15 !important; }
+            .receipt-sub-nama { font-size:10.5px !important; margin-top:4px !important; }
+            .receipt-alamat-wa { font-size:10px !important; margin-top:7px !important; line-height:1.45 !important; }
+            .receipt-meta-wrapper { margin-top:9px !important; margin-bottom:2px !important; }
+            .receipt-meta-row { padding:1.5px 0 !important; }
+            .receipt-meta-label, .receipt-meta-value { font-size:10px !important; }
+            .receipt-pay-method { padding:7px 0 !important; font-size:11px !important; margin:9px 0 10px 0 !important; }
+            .receipt-lunas { margin-top:8px !important; font-size:10.5px !important; padding:5px 0 !important; }
+            .receipt-item { padding:5px 0 7px 0 !important; margin-bottom:3px !important; }
+            .receipt-item-nama { font-size:11.5px !important; line-height:1.3 !important; }
+            .receipt-item-harga-satuan, .receipt-item-harga { font-size:10px !important; margin-top:4px !important; line-height:1.2 !important; }
+            .receipt-subtotal-item { font-size:11.5px !important; }
+            .receipt-total-row { padding:3px 0 !important; }
+            .receipt-total-row .label, .receipt-total-row .value { font-size:11px !important; }
+            .receipt-total-row.row-total { margin-top:5px !important; padding-top:7px !important; border-top:1.5px solid #111827 !important; }
+            .receipt-total-row.row-total .label, .receipt-total-row.row-total .value { font-size:13px !important; }
+            .receipt-total-row.row-bayar { padding-top:5px !important; }
+            .receipt-total-row.row-bayar .label, .receipt-total-row.row-bayar .value { font-size:11.5px !important; }
+            .receipt-total-row.row-kembalian { padding:5px 0 2px 0 !important; }
+            .receipt-total-row.row-kembalian .label, .receipt-total-row.row-kembalian .value { font-size:12.5px !important; }
+            .receipt-footer-thank { margin-top:10px !important; font-size:10.5px !important; line-height:1.4 !important; }
+            .receipt-footer-hashtag { font-size:9.5px !important; margin-top:6px !important; line-height:1.35 !important; }
         }
     </style></head><body>
     <div class="receipt"><div class="receipt-card">
-        <div class="receipt-title">' . htmlspecialchars(TOKO_NAMA) . '</div>
-        <div class="receipt-sub-nama">— Minuman &amp; Cemilan Kekinian —</div>
-        <div class="receipt-alamat-wa">' . $alamatDuaBaris . '<br><i class="bi bi-whatsapp"></i> ' . htmlspecialchars(TOKO_WA) . '</div>
+        <div class="receipt-center">
+            <div class="receipt-title">' . htmlspecialchars(TOKO_NAMA) . '</div>
+            <div class="receipt-sub-nama">Minuman &amp; Cemilan Kekinian</div>
+            <div class="receipt-alamat-wa">' . $alamatDuaBaris . '<br>WhatsApp: ' . htmlspecialchars(TOKO_WA) . '</div>
+        </div>
         <div class="receipt-divider-solid"></div>
         <div class="receipt-meta-wrapper">
-            <div class="receipt-meta-col">
-                <i class="bi bi-calendar3"></i>
-                <div>
-                    <div class="receipt-meta-label">TANGGAL</div>
-                    <div class="receipt-meta-value">' . $tglStr . '</div>
-                </div>
+            <div class="receipt-meta-row">
+                <div class="receipt-meta-label">TANGGAL :</div>
+                <div class="receipt-meta-value">' . $tglStr . '</div>
             </div>
-            <div class="receipt-meta-col">
-                <i class="bi bi-receipt-cutoff"></i>
-                <div>
-                    <div class="receipt-meta-label">NO. STRUK</div>
-                    <div class="receipt-meta-value">' . $noStr . '</div>
-                </div>
+            <div class="receipt-meta-row">
+                <div class="receipt-meta-label">NO. STRUK :</div>
+                <div class="receipt-meta-value">' . $noStr . '</div>
             </div>
         </div>
         ' . $badgeMetode . '
-        <div style="margin-top:4px;">' . $itemsHtml . '</div>
+        <div style="margin-top:6px;">' . $itemsHtml . '</div>
         <div class="receipt-divider-dashed"></div>
         ' . $bayarKembalianHtml . '
         <div class="receipt-divider-solid"></div>
-        <div class="receipt-footer-thank">Terima Kasih Atas Kunjungannya</div>
+        <div class="receipt-footer-thank">Terima Kasih Atas Kunjungannya<br>Semoga Berkah Selalu</div>
     </div></div>
     <script>window.onload = function() { setTimeout(function() { window.focus(); window.print(); setTimeout(function() { if (window.history.length > 1) window.history.back(); }, 450); }, 220); }<' . '/script>
     </body></html>';

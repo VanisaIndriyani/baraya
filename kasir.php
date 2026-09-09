@@ -796,6 +796,37 @@ if (!headers_sent()) {
             box-shadow:none !important;
             cursor:not-allowed !important;
         }
+        .btn-cetak-ucapan {
+            margin-top: 10px;
+            width: 100%;
+            min-height: 52px;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg,#FDE68A,#FBBF24) !important;
+            color: #450A0A !important;
+            border: 2px solid #991B1B !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            letter-spacing: 0.2px;
+            box-shadow: 0 10px 20px rgba(251,191,36,0.35), 0 0 0 4px rgba(153,27,27,0.1) !important;
+            transition: all 0.2s ease !important;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+        }
+        .btn-cetak-ucapan:active { transform: scale(0.98); box-shadow: 0 5px 12px rgba(251,191,36,0.2) !important; }
+        .btn-topnav-ucapan {
+            padding: 5.5px 11px !important;
+            background: linear-gradient(135deg,#FDE68A,#FBBF24) !important;
+            color: #450A0A !important;
+            border: 1.5px solid #991B1B !important;
+            box-shadow: 0 3px 7px rgba(251,191,36,0.4) !important;
+            border-radius: 11px !important;
+            font-size: 0.72rem !important;
+            font-weight: 900 !important;
+            gap: 3px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.15s ease;
+        }
+        .btn-topnav-ucapan:active { transform: scale(0.97); }
         .btn-reset {
             margin-top:10px;
             width:100%;
@@ -810,17 +841,18 @@ if (!headers_sent()) {
         }
         .btn-reset:active { transform: scale(0.97); background:#E2E8F0 !important; }
 
-        /* ============ RECEIPT / PRINT (THERMAL 58mm CLEAN MINIMALIS MODERN) ============ */
+        /* ============ RECEIPT / PRINT (THERMAL 58mm CLEAN MINIMALIS MODERN - SPASI ANTI MEPEL) ============ */
         .receipt {
             display:none; width:100%; max-width:58mm; min-width:58mm; margin:0 auto;
-            padding: 4mm 3.5mm 4mm 3.5mm;
+            padding: 5mm 4mm 5mm 4mm;
             color:#000000;
             font-family: 'Courier New', Courier, monospace !important;
-            font-size: 11px; line-height: 1.4;
+            font-size: 11.5px; line-height: 1.55;
             background: #FFFFFF; max-height:none; min-height:auto;
             box-sizing: border-box;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
-        .receipt * { font-family: 'Courier New', Courier, monospace !important; letter-spacing: 0 !important; }
+        .receipt * { font-family: 'Courier New', Courier, monospace !important; letter-spacing: 0 !important; line-height: inherit !important; }
         .receipt-card {
             border: none; border-radius: 0; padding: 0; margin: 0;
             background: #FFFFFF; width: 100%; box-sizing: border-box;
@@ -828,141 +860,150 @@ if (!headers_sent()) {
         }
         .receipt-center { text-align:center; }
         .receipt-divider {
-            border: none; border-top: 1px dashed #374151; margin: 7px 0;
+            border: none; border-top: 1px dashed #374151; margin: 9px 0;
             height: 0; clear: both;
         }
         .receipt-divider-solid {
-            border: none; border-top: 1px solid #111827; margin: 6px 0;
+            border: none; border-top: 1px solid #111827; margin: 8px 0;
             height: 0; clear: both;
         }
         .receipt-title {
-            font-weight: 900; font-size: 14px; text-align: center;
-            color: #000000; line-height: 1.1; letter-spacing: 0.3px;
-            margin: 0;
+            font-weight: 900; font-size: 15px; text-align: center;
+            color: #000000; line-height: 1.15; letter-spacing: 0.3px;
+            margin: 0 0 2px 0;
         }
         .receipt-sub-nama {
-            text-align: center; font-size: 10px; color: #374151; font-weight: 600;
-            margin-top: 2px; line-height: 1.1;
+            text-align: center; font-size: 10.5px; color: #374151; font-weight: 700;
+            margin-top: 4px; line-height: 1.2;
         }
         .receipt-alamat-wa {
-            text-align: center; font-size: 9.5px; color: #374151;
-            margin-top: 5px; line-height: 1.3;
-            font-weight: 500;
+            text-align: center; font-size: 10px; color: #374151;
+            margin-top: 7px; line-height: 1.45;
+            font-weight: 600;
         }
         .receipt-meta-wrapper {
-            margin-top: 6px;
+            margin-top: 9px;
+            margin-bottom: 2px;
         }
         .receipt-meta-row {
             display: flex; justify-content: flex-start; align-items: flex-start;
-            gap: 4px;
+            gap: 5px;
+            padding: 1.5px 0;
         }
         .receipt-meta-label {
-            font-weight: 800; font-size: 9.5px; color: #000000;
+            font-weight: 900; font-size: 10px; color: #000000;
             flex: 0 0 auto; white-space: nowrap;
         }
         .receipt-meta-value {
-            font-size: 9.5px; color: #000000; font-weight: 600;
+            font-size: 10px; color: #000000; font-weight: 700;
             flex: 1; min-width: 0; word-break: break-all;
         }
         .receipt-pay-method {
             text-align: center;
-            padding: 5px 0;
+            padding: 7px 0;
             border-top: 1px dashed #374151;
             border-bottom: 1px dashed #374151;
-            font-weight: 900; font-size: 10.5px;
+            font-weight: 900; font-size: 11px;
             color: #000000;
-            margin: 6px 0 7px 0;
-            letter-spacing: 0.3px;
+            margin: 9px 0 10px 0;
+            letter-spacing: 0.35px;
         }
         .receipt-lunas {
             text-align: center;
-            margin-top: 6px;
-            padding: 4px 0;
-            font-weight: 900; font-size: 10px;
+            margin-top: 8px;
+            padding: 5px 0;
+            font-weight: 900; font-size: 10.5px;
             color: #000000;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.25px;
         }
         .receipt-section-label {
-            font-weight: 900; font-size: 10.5px; color: #000000;
-            margin-bottom: 3px; letter-spacing: 0.3px;
+            font-weight: 900; font-size: 11px; color: #000000;
+            margin-bottom: 6px; letter-spacing: 0.4px;
+            padding-top: 2px;
         }
         .receipt-item {
-            padding: 4px 0 5px 0;
-            border-bottom: 1px dashed #E5E7EB;
-            margin-bottom: 2px;
+            padding: 5px 0 7px 0;
+            border-bottom: 1px dashed #D1D5DB;
+            margin-bottom: 3px;
         }
         .receipt-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
         .receipt-item-top {
             display: flex; justify-content: space-between; align-items: flex-start;
             gap: 6px;
+            padding-bottom: 1px;
         }
         .receipt-item-nama {
             flex: 1; min-width: 0;
-            font-size: 11px; font-weight: 700; color: #000000;
-            line-height: 1.2;
+            font-size: 11.5px; font-weight: 800; color: #000000;
+            line-height: 1.3;
         }
         .receipt-item-harga-satuan {
-            font-size: 9.5px; color: #4B5563;
-            margin-top: 2px;
-            font-weight: 500;
-            line-height: 1.1;
+            font-size: 10px; color: #4B5563;
+            margin-top: 4px;
+            font-weight: 600;
+            line-height: 1.2;
+            padding-left: 1px;
         }
         .receipt-item-kanan {
             flex-shrink: 0; text-align: right;
             min-width: 0;
+            padding-top: 1px;
         }
         .receipt-subtotal-item {
-            font-weight: 900; color: #000000; font-size: 11px;
+            font-weight: 900; color: #000000; font-size: 11.5px;
             white-space: nowrap;
         }
         .receipt-total-row {
             display: flex; justify-content: space-between; align-items: baseline;
-            padding: 1.5px 0;
-            gap: 8px;
+            padding: 3px 0;
+            gap: 10px;
         }
         .receipt-total-row .label {
-            font-weight: 800; color: #000000; font-size: 10.5px;
-            letter-spacing: 0.2px;
+            font-weight: 900; color: #000000; font-size: 11px;
+            letter-spacing: 0.3px;
             flex: 0 0 auto;
         }
         .receipt-total-row .value {
-            font-weight: 900; color: #000000; font-size: 10.5px;
+            font-weight: 900; color: #000000; font-size: 11px;
             text-align: right;
             flex: 1; min-width: 0;
             white-space: nowrap;
         }
         .receipt-total-row.row-total {
-            margin-top: 2px;
-            padding-top: 4px;
+            margin-top: 5px;
+            padding-top: 7px;
+            border-top: 1.5px solid #111827;
         }
         .receipt-total-row.row-total .label,
         .receipt-total-row.row-total .value {
-            font-size: 12px; font-weight: 900;
+            font-size: 13px; font-weight: 900;
         }
+        .receipt-total-row.row-bayar { padding-top: 5px; }
         .receipt-total-row.row-bayar .label,
         .receipt-total-row.row-bayar .value {
-            font-size: 11px;
+            font-size: 11.5px;
         }
+        .receipt-total-row.row-kembalian { padding: 5px 0 2px 0; }
         .receipt-total-row.row-kembalian .label,
         .receipt-total-row.row-kembalian .value {
-            font-size: 12px;
+            font-size: 12.5px;
         }
         .receipt-footer-thank {
             text-align: center;
-            margin-top: 6px;
-            line-height: 1.2;
-            font-size: 10px;
+            margin-top: 10px;
+            line-height: 1.4;
+            font-size: 10.5px;
             color: #000000;
-            font-weight: 700;
+            font-weight: 800;
         }
         .receipt-footer-hashtag {
             text-align: center;
-            font-weight: 600;
-            font-size: 9px;
+            font-weight: 700;
+            font-size: 9.5px;
             color: #374151;
-            margin-top: 4px;
-            line-height: 1.2;
-            letter-spacing: 0.1px;
+            margin-top: 6px;
+            line-height: 1.35;
+            letter-spacing: 0.15px;
         }
         .receipt-footer-bless {
             text-align: center;
@@ -973,25 +1014,56 @@ if (!headers_sent()) {
             line-height: 1.1;
         }
         @media print {
+            @page { size: 58mm auto; margin: 0mm; }
             html, body {
                 width: 100% !important; max-width:58mm !important; min-width:58mm !important;
                 margin: 0 !important; padding: 0 !important;
                 background: #FFFFFF !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
                 overflow: visible !important;
+                font-size: 11.5px !important;
+                line-height: 1.55 !important;
             }
             body > *:not(.receipt):not(.receipt *) { display: none !important; }
             .receipt {
                 display: block !important; visibility: visible !important;
                 width: 100% !important; max-width:58mm !important; min-width:58mm !important;
-                position: absolute; left: 0; top: 0; margin: 0;
-                padding: 4mm 3.5mm 4mm 3.5mm !important;
+                position: absolute; left: 0; top: 0; margin: 0 !important;
+                padding: 5mm 4mm 5mm 4mm !important;
                 page-break-inside: auto !important; page-break-after: avoid !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
                 box-sizing: border-box !important;
                 background: #FFFFFF !important;
+                font-size: 11.5px !important;
+                line-height: 1.55 !important;
             }
-            @page { size: 58mm auto; margin: 0mm; }
+            .receipt * { line-height: 1.55 !important; }
+            .receipt-divider { margin: 9px 0 !important; }
+            .receipt-divider-solid { margin: 8px 0 !important; }
+            .receipt-title { font-size: 15px !important; line-height: 1.15 !important; }
+            .receipt-sub-nama { font-size: 10.5px !important; margin-top: 4px !important; }
+            .receipt-alamat-wa { font-size: 10px !important; margin-top: 7px !important; line-height: 1.45 !important; }
+            .receipt-meta-wrapper { margin-top: 9px !important; margin-bottom: 2px !important; }
+            .receipt-meta-row { padding: 1.5px 0 !important; }
+            .receipt-meta-label, .receipt-meta-value { font-size: 10px !important; }
+            .receipt-pay-method { padding: 7px 0 !important; font-size: 11px !important; margin: 9px 0 10px 0 !important; }
+            .receipt-lunas { margin-top: 8px !important; font-size: 10.5px !important; padding: 5px 0 !important; }
+            .receipt-section-label { font-size: 11px !important; margin-bottom: 6px !important; padding-top: 2px !important; }
+            .receipt-item { padding: 5px 0 7px 0 !important; margin-bottom: 3px !important; }
+            .receipt-item-nama { font-size: 11.5px !important; line-height: 1.3 !important; }
+            .receipt-item-harga-satuan { font-size: 10px !important; margin-top: 4px !important; line-height: 1.2 !important; }
+            .receipt-subtotal-item { font-size: 11.5px !important; }
+            .receipt-total-row { padding: 3px 0 !important; }
+            .receipt-total-row .label, .receipt-total-row .value { font-size: 11px !important; }
+            .receipt-total-row.row-total { margin-top: 5px !important; padding-top: 7px !important; border-top: 1.5px solid #111827 !important; }
+            .receipt-total-row.row-total .label, .receipt-total-row.row-total .value { font-size: 13px !important; }
+            .receipt-total-row.row-bayar { padding-top: 5px !important; }
+            .receipt-total-row.row-bayar .label, .receipt-total-row.row-bayar .value { font-size: 11.5px !important; }
+            .receipt-total-row.row-kembalian { padding: 5px 0 2px 0 !important; }
+            .receipt-total-row.row-kembalian .label, .receipt-total-row.row-kembalian .value { font-size: 12.5px !important; }
+            .receipt-footer-thank { margin-top: 10px !important; font-size: 10.5px !important; line-height: 1.4 !important; }
+            .receipt-footer-hashtag { font-size: 9.5px !important; margin-top: 6px !important; line-height: 1.35 !important; }
+            .receipt-footer-bless { font-size: 9.5px !important; margin-top: 4px !important; }
         }
 
         .keranjang-body::-webkit-scrollbar { width:6px; }
@@ -1359,25 +1431,56 @@ if (!headers_sent()) {
             line-height: 1.1;
         }
         @media print {
+            @page { size: 58mm auto; margin: 0mm; }
             html, body {
                 width: 100% !important; max-width:58mm !important; min-width:58mm !important;
                 margin: 0 !important; padding: 0 !important;
                 background: #FFFFFF !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
                 overflow: visible !important;
+                font-size: 11.5px !important;
+                line-height: 1.55 !important;
             }
             body > *:not(.receipt):not(.receipt *) { display: none !important; }
             .receipt {
                 display: block !important; visibility: visible !important;
                 width: 100% !important; max-width:58mm !important; min-width:58mm !important;
-                position: absolute; left: 0; top: 0; margin: 0;
-                padding: 4mm 3.5mm 4mm 3.5mm !important;
+                position: absolute; left: 0; top: 0; margin: 0 !important;
+                padding: 5mm 4mm 5mm 4mm !important;
                 page-break-inside: auto !important; page-break-after: avoid !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
                 box-sizing: border-box !important;
                 background: #FFFFFF !important;
+                font-size: 11.5px !important;
+                line-height: 1.55 !important;
             }
-            @page { size: 58mm auto; margin: 0mm; }
+            .receipt * { line-height: 1.55 !important; }
+            .receipt-divider { margin: 9px 0 !important; }
+            .receipt-divider-solid { margin: 8px 0 !important; }
+            .receipt-title { font-size: 15px !important; line-height: 1.15 !important; }
+            .receipt-sub-nama { font-size: 10.5px !important; margin-top: 4px !important; }
+            .receipt-alamat-wa { font-size: 10px !important; margin-top: 7px !important; line-height: 1.45 !important; }
+            .receipt-meta-wrapper { margin-top: 9px !important; margin-bottom: 2px !important; }
+            .receipt-meta-row { padding: 1.5px 0 !important; }
+            .receipt-meta-label, .receipt-meta-value { font-size: 10px !important; }
+            .receipt-pay-method { padding: 7px 0 !important; font-size: 11px !important; margin: 9px 0 10px 0 !important; }
+            .receipt-lunas { margin-top: 8px !important; font-size: 10.5px !important; padding: 5px 0 !important; }
+            .receipt-section-label { font-size: 11px !important; margin-bottom: 6px !important; padding-top: 2px !important; }
+            .receipt-item { padding: 5px 0 7px 0 !important; margin-bottom: 3px !important; }
+            .receipt-item-nama { font-size: 11.5px !important; line-height: 1.3 !important; }
+            .receipt-item-harga-satuan { font-size: 10px !important; margin-top: 4px !important; line-height: 1.2 !important; }
+            .receipt-subtotal-item { font-size: 11.5px !important; }
+            .receipt-total-row { padding: 3px 0 !important; }
+            .receipt-total-row .label, .receipt-total-row .value { font-size: 11px !important; }
+            .receipt-total-row.row-total { margin-top: 5px !important; padding-top: 7px !important; border-top: 1.5px solid #111827 !important; }
+            .receipt-total-row.row-total .label, .receipt-total-row.row-total .value { font-size: 13px !important; }
+            .receipt-total-row.row-bayar { padding-top: 5px !important; }
+            .receipt-total-row.row-bayar .label, .receipt-total-row.row-bayar .value { font-size: 11.5px !important; }
+            .receipt-total-row.row-kembalian { padding: 5px 0 2px 0 !important; }
+            .receipt-total-row.row-kembalian .label, .receipt-total-row.row-kembalian .value { font-size: 12.5px !important; }
+            .receipt-footer-thank { margin-top: 10px !important; font-size: 10.5px !important; line-height: 1.4 !important; }
+            .receipt-footer-hashtag { font-size: 9.5px !important; margin-top: 6px !important; line-height: 1.35 !important; }
+            .receipt-footer-bless { font-size: 9.5px !important; margin-top: 4px !important; }
         }
 
         /* ==== SCROLLBAR ==== */
@@ -1399,6 +1502,9 @@ if (!headers_sent()) {
                 </div>
             </div>
             <div class="topnav-right">
+                <button type="button" class="btn btn-topnav-ucapan transition-card" onclick="cetakKartuUcapan();" title="Cetak Kartu Ucapan Review 5 Bintang">
+                    <i class="bi bi-gift-fill"></i> Ucapan
+                </button>
                 <a href="<?php echo $base_url; ?>/login.php" target="_blank" class="btn btn-topnav-admin transition-card">
                     <i class="bi bi-person-badge"></i> Admin
                 </a>
@@ -1558,6 +1664,10 @@ if (!headers_sent()) {
                             <i class="bi bi-printer-fill fs-5"></i>
                             CETAK RESI
                         </button>
+                        <button type="button" class="btn btn-cetak-ucapan d-none d-lg-block" onclick="cetakKartuUcapan();">
+                            <i class="bi bi-gift-fill fs-6"></i>
+                            CETAK KARTU UCAPAN
+                        </button>
                         <button type="button" class="btn btn-reset d-none d-lg-block" onclick="resetKeranjang()">
                             <i class="bi bi-arrow-counterclockwise me-1"></i> Bersihkan Semua
                         </button>
@@ -1588,8 +1698,68 @@ if (!headers_sent()) {
     <?php endif; ?>
 </div>
 
-<!-- HIDDEN RECEIPT (UNTUK PRINT) -->
+<!-- HIDDEN RECEIPT (UNTUK PRINT RESI TRANSAKSI) -->
 <div class="receipt" id="receiptPrint"></div>
+
+<!-- HIDDEN RECEIPT (KARTU UCAPAN TERIMA KASIH - CETAK THERMAL 58mm) -->
+<div class="receipt" id="receiptKartuUcapan">
+    <div class="receipt-card">
+        <div class="receipt-center">
+            <div class="receipt-title" style="font-size:16px; line-height:1.2;">✨ TERIMA KASIH ✨</div>
+            <div class="receipt-sub-nama" style="margin-top:5px; font-size:11px; color:#111827; font-weight:900;">Es Teller & Dawet Baraya</div>
+            <div class="receipt-alamat-wa" style="margin-top:6px; font-weight:700;">
+                Jl. Kakatua No.103, Condongcatur<br>Sleman DIY 55281
+            </div>
+            <div style="text-align:center; margin-top:7px; font-size:10.5px; font-weight:900; letter-spacing:0.2px;">
+                <i class="bi bi-whatsapp" style="color:#10B981;"></i> WhatsApp: +62 831-8930-2691
+            </div>
+        </div>
+
+        <div class="receipt-divider-solid" style="margin:10px 0;"></div>
+
+        <div class="receipt-center" style="padding:2px 0 0 0;">
+            <div style="font-weight:900; font-size:11px; line-height:1.45; color:#111827;">
+                Atas kunjungan dan kepercayaan<br>membeli di Baraya 💛
+            </div>
+        </div>
+
+        <div class="receipt-divider" style="margin:10px 0;"></div>
+
+        <div style="padding:2px 0 0 0;">
+            <div style="font-weight:900; font-size:11px; text-align:center; letter-spacing:0.25px; margin-bottom:8px;">
+                🙏 MOHON BANTUAN REVIEWNYA 🙏
+            </div>
+
+            <div style="padding:7px 6px; margin-bottom:6px; border:1px dashed #6B7280; border-radius:10px; text-align:center;">
+                <div style="font-size:16px; letter-spacing:2px; line-height:1;">🌟 🌟 🌟 🌟 🌟</div>
+                <div style="font-weight:900; font-size:10.5px; margin-top:5px; color:#111827;">Beri kami rating BINTANG 5</div>
+            </div>
+
+            <div style="padding:4px 0 5px 2px; line-height:1.5;">
+                <div style="font-size:10.8px; font-weight:800; padding:2.5px 0; color:#111827;">🗺️ Google Maps</div>
+                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Cari "Es Teller Dawet Baraya" → Review</div>
+
+                <div style="font-size:10.8px; font-weight:800; padding:4px 0 2.5px 0; color:#111827;">🛵 ShopeeFood</div>
+                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Toko: Es Teller Dawet Baraya → Rating 5</div>
+
+                <div style="font-size:10.8px; font-weight:800; padding:4px 0 2.5px 0; color:#111827;">🛵 GoFood / Gojek</div>
+                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Cari toko kami lalu bintang 5 ya</div>
+
+                <div style="font-size:10.8px; font-weight:800; padding:4px 0 2.5px 0; color:#111827;">🛵 GrabFood</div>
+                <div style="font-size:10.5px; padding-left:4px; line-height:1.3;">Order lagi & kasih review terbaik 🥰</div>
+            </div>
+        </div>
+
+        <div class="receipt-divider-solid" style="margin:10px 0 9px 0;"></div>
+
+        <div class="receipt-footer-thank" style="margin-top:3px; font-weight:900; line-height:1.5; font-size:11px;">
+            Semoga pesananannya sesuai dan<br>menjadi berkah untuk keluarga 💖
+        </div>
+        <div class="receipt-footer-bless" style="margin-top:7px; text-align:center; font-size:10px; font-weight:800; line-height:1.4;">
+            — Baraya · Minuman & Cemilan Kekinian —<br>Jl. Kakatua No.103 Condongcatur
+        </div>
+    </div>
+</div>
 
 <!-- ============== MODAL KERANJANG KECIL (STEP 1) ============== -->
 <div class="modal fade modal-sm-custom" id="modalKeranjangKecil" tabindex="-1" aria-labelledby="modalKeranjangKecilLabel" aria-hidden="true">
@@ -2365,6 +2535,39 @@ function tutupModalPembayaran() {
     if (bsModalPembayaranBesar) bsModalPembayaranBesar.hide();
 }
 
+// ============== CETAK KARTU UCAPAN TERIMA KASIH (THERMAL 58mm) ==============
+function cetakKartuUcapan() {
+    const elResiTransaksi = document.getElementById('receiptPrint');
+    const elKartu = document.getElementById('receiptKartuUcapan');
+    if (!elKartu) return;
+
+    // Pastikan receipt resi transaksi disembunyikan (tidak ikut print kartu)
+    if (elResiTransaksi) elResiTransaksi.style.setProperty('display', 'none', 'important');
+    elKartu.style.setProperty('display', 'block', 'important');
+
+    // Tutup semua modal biar backdrop tidak ngambek
+    try { if (bsModalPembayaranBesar) bsModalPembayaranBesar.hide(); } catch(e){}
+    try { if (bsModalKeranjangKecil) bsModalKeranjangKecil.hide(); } catch(e){}
+
+    // Scroll ke atas biar print posisi start atas
+    try { window.scrollTo(0, 0); } catch(e){}
+
+    setTimeout(function() {
+        window.focus();
+        try { window.print(); } catch(e){}
+
+        // Setelah print (atau cancel dialog print): reset BALIK display seperti semula (hapus inline style, biar default class .receipt display:none)
+        setTimeout(function() {
+            try {
+                if (elResiTransaksi) elResiTransaksi.style.removeProperty('display');
+            } catch(e){ try { elResiTransaksi.removeAttribute('style'); } catch(e2){} }
+            try {
+                elKartu.style.removeProperty('display');
+            } catch(e){ try { elKartu.removeAttribute('style'); } catch(e2){} }
+        }, 800);
+    }, 220);
+}
+
 // ============== CETAK RESI ==============
 function padZero(num, len) {
     num = String(num);
@@ -2381,6 +2584,12 @@ function noStruk(d) {
         + padZero(d.getHours(), 2) + padZero(d.getMinutes(), 2) + padZero(d.getSeconds(), 2);
 }
 function cetakResi() {
+    // Pastikan receipt kartu ucapan disembunyikan dulu (tidak double print bareng resi transaksi)
+    const elKartuPre = document.getElementById('receiptKartuUcapan');
+    if (elKartuPre) elKartuPre.style.setProperty('display', 'none', 'important');
+    const elResiPre = document.getElementById('receiptPrint');
+    if (elResiPre) elResiPre.style.removeProperty('display');
+
     const total = hitungTotal();
     if (total <= 0) { Swal.fire({ icon:'error', title:'Keranjang Kosong', text:'Tambahkan minimal 1 item', confirmButtonColor:'#991B1B' }); return; }
     const bayar = (CURRENT_PAYMENT === 'QRIS') ? total : angkaOnly(inputBayar.value);
@@ -2535,7 +2744,18 @@ function cetakResi() {
         // Delay sedikit biar DOM di-render dulu sebelum print
         setTimeout(function() {
             window.print();
-            // Setelah print (atau cancel), tanya apakah transaksi selesai -> reset
+            // Setelah print (atau cancel): reset BALIK style display kedua receipt biar tidak bentrok cetak berikutnya
+            setTimeout(function() {
+                try {
+                    const elKartuAfter = document.getElementById('receiptKartuUcapan');
+                    if (elKartuAfter) elKartuAfter.style.removeProperty('display');
+                } catch(e){}
+                try {
+                    const elResiAfter = document.getElementById('receiptPrint');
+                    if (elResiAfter) elResiAfter.style.removeProperty('display');
+                } catch(e){}
+            }, 700);
+            // Setelah reset → tampilkan alert berhasil
             setTimeout(function() {
                 Swal.fire({
                     icon: 'success',
