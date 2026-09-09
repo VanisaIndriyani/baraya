@@ -224,36 +224,109 @@ try {
 }
 $totalProduk = count($produkList);
 
-// ===== DAFTAR KATEGORI FILTER HALAMAN KASIR (DEFAULT WAJIB + DINAMIS DARI DB) =====
+// ===== DAFTAR KATEGORI FILTER HALAMAN KASIR (DEFAULT WAJIB + DINAMIS DARI DB + NORMALISASI ANTI DOUBLE) =====
 // Kategori default SELALU MUNCUL meskipun belum ada produk (sesuai nama brand: Es Teller & Dawet Baraya)
 $defaultKategori = ['Minuman', 'Shake', 'Es Teller', 'Dawet'];
-$kategoriDbOnly = [];
+
+function kasirNormalizeKatDisplay($rawKat) {
+    $rawKat = trim((string)$rawKat);
+    if ($rawKat === '') return '';
+    $kataArr = preg_split('/\s+/u', $rawKat, -1, PREG_SPLIT_NO_EMPTY);
+    if (!$kataArr) return $rawKat;
+    $result = [];
+    $kataMapSpecial = [
+        'es' => 'Es', 'teller' => 'Teller', 'dawet' => 'Dawet', 'shake' => 'Shake',
+        'minuman' => 'Minuman', 'makanan' => 'Makanan', 'cemilan' => 'Cemilan',
+        'cemal' => 'Cemal', 'cemil' => 'Cemal', 'toping' => 'Toping', 'topping' => 'Toping',
+        'vanisa' => 'Vanisa', 'boba' => 'Boba', 'kopi' => 'Kopi', 'jus' => 'Jus',
+        'qris' => 'QRIS', 'cash' => 'CASH',
+    ];
+    foreach ($kataArr as $kataRaw) {
+        $kataLow = mb_strtolower($kataRaw, 'UTF-8');
+        if (isset($kataMapSpecial[$kataLow])) {
+            $result[] = $kataMapSpecial[$kataLow];
+        } else {
+            $kataFixed = mb_strtoupper(mb_substr($kataLow, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($kataLow, 1, null, 'UTF-8');
+            if (strpos($kataFixed, '-') !== false) {
+                $subs = explode('-', $kataFixed);
+                $subFixed = [];
+                foreach ($subs as $sp) {
+                    $spl = mb_strtolower($sp, 'UTF-8');
+                    if (isset($kataMapSpecial[$spl])) {
+                        $subFixed[] = $kataMapSpecial[$spl];
+                    } else {
+                        $subFixed[] = mb_strtoupper(mb_substr($spl, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($spl, 1, null, 'UTF-8');
+                    }
+                }
+                $result[] = implode('-', $subFixed);
+            } else {
+                $result[] = $kataFixed;
+            }
+        }
+    }
+    return implode(' ', $result);
+}
+
+$katDefaultMapLow = [];
+foreach ($defaultKategori as $dkat) {
+    $katDefaultMapLow[mb_strtolower(trim($dkat), 'UTF-8')] = $dkat;
+}
+
+$kategoriDbOnlyLow = [];
+$rowsKat = [];
 try {
     $stmtKat = $pdo->query("SELECT DISTINCT kategori FROM kasir_produk");
     $rowsKat = $stmtKat->fetchAll();
     foreach ($rowsKat as $rk) {
-        $kat = trim($rk['kategori'] ?? '');
-        if ($kat !== '') {
-            $kategoriDbOnly[] = $kat;
-        }
+        $kat = trim((string)($rk['kategori'] ?? ''));
+        if ($kat === '') continue;
+        $katLow = mb_strtolower($kat, 'UTF-8');
+        if ($katLow === '') continue;
+        $kategoriDbOnlyLow[$katLow] = true;
     }
 } catch (PDOException $e) {
-    $kategoriDbOnly = [];
+    $kategoriDbOnlyLow = [];
+    $rowsKat = [];
 }
-// GABUNGKAN default + DB (hapus duplikat)
-$kategoriListRaw = array_values(array_unique(array_merge($defaultKategori, $kategoriDbOnly)));
-// URUTKAN: kategori default duluan (sesuai urutan nama brand), baru kategori custom DB lain (misal vanisa) di belakangnya
-$kategoriPriority = array_flip($defaultKategori);
+
+$mergeUniqueLow = [];
+foreach ($defaultKategori as $dk) {
+    $low = mb_strtolower(trim($dk), 'UTF-8');
+    if ($low === '' || isset($mergeUniqueLow[$low])) continue;
+    $mergeUniqueLow[$low] = $dk;
+}
+foreach (array_keys($kategoriDbOnlyLow) as $lowDb) {
+    if ($lowDb === '' || isset($mergeUniqueLow[$lowDb])) continue;
+    $rawKatAsli = '';
+    foreach ($rowsKat as $rk) {
+        $rr = trim((string)($rk['kategori'] ?? ''));
+        if (mb_strtolower($rr, 'UTF-8') === $lowDb) { $rawKatAsli = $rr; break; }
+    }
+    $displayDb = $rawKatAsli !== '' ? kasirNormalizeKatDisplay($rawKatAsli) : kasirNormalizeKatDisplay($lowDb);
+    $mergeUniqueLow[$lowDb] = $displayDb;
+}
+
+$kategoriListRaw = array_values($mergeUniqueLow);
+$kategoriPriority = [];
+$n = 0;
+foreach ($defaultKategori as $dk) {
+    $low = mb_strtolower(trim($dk), 'UTF-8');
+    if ($low === '') continue;
+    $kategoriPriority[$low] = $n++;
+}
 usort($kategoriListRaw, function($a, $b) use ($kategoriPriority) {
-    $pa = $kategoriPriority[$a] ?? 9999;
-    $pb = $kategoriPriority[$b] ?? 9999;
+    $pa = $kategoriPriority[mb_strtolower(trim((string)$a), 'UTF-8')] ?? 9999;
+    $pb = $kategoriPriority[mb_strtolower(trim((string)$b), 'UTF-8')] ?? 9999;
     if ($pa !== $pb) return $pa - $pb;
     return strcasecmp($a, $b);
 });
 $kategoriListDb = $kategoriListRaw;
-// Fallback final jika kosong banget
 if (empty($kategoriListDb)) {
     $kategoriListDb = ['Minuman', 'Shake', 'Es Teller', 'Dawet'];
+}
+
+function kasirLowKat($v) {
+    return mb_strtolower(trim((string)$v), 'UTF-8');
 }
 
 // ===== AGGRESSIVE ANTI-CACHE (HTTP Headers lebih kuat dari meta tag untuk HP) =====
@@ -1643,17 +1716,18 @@ if (!headers_sent()) {
                 <span class="badge rounded-pill ms-2 fw-semibold" style="background: rgba(153,27,27,0.12); color:#991B1B; font-size:0.8rem;"><?php echo $totalProduk; ?> item</span>
             </h5>
 
-            <!-- FILTER KATEGORI PILLS (DINAMIS DARI DATABASE - otomatis munculkan kategori baru seperti vanisa) -->
+            <!-- FILTER KATEGORI PILLS (NORMALISASI: ES TELLER / Es Teller / es teller = JADI SATU KATEGORI "Es Teller" agar tidak double) -->
             <div class="kategori-pills">
                 <button type="button" class="pill kat-active" onclick="filterProduk('all', this)">Semua</button>
                 <?php foreach ($kategoriListDb as $katItem):
-                    $katTrim = trim($katItem);
+                    $katTrim = trim((string)$katItem);
                     $katDisplay = htmlspecialchars($katTrim, ENT_QUOTES);
+                    $katLowJs = kasirLowKat($katTrim);
                     // Escape untuk onclick JS string pakai SINGLE QUOTE (hindari bentrok double quote attribute onclick="...")
                     $katJsSingleEsc = str_replace(
                         ['\\', "'", "\n", "\r", "\t", '</'],
                         ['\\\\', "\\'", '\\n', '\\r', '\\t', '<\\/'],
-                        $katTrim
+                        $katLowJs
                     );
                 ?>
                 <button type="button" class="pill" onclick="filterProduk('<?php echo $katJsSingleEsc; ?>', this)"><?php echo $katDisplay; ?></button>
@@ -1663,9 +1737,11 @@ if (!headers_sent()) {
             <div class="row g-3 g-md-4" id="produkGrid">
                 <?php foreach ($produkList as $p):
                     $gambarUrl = !empty($p['gambar']) ? ($base_url . '/' . ltrim($p['gambar'], '/')) : '';
-                    $kategori = htmlspecialchars($p['kategori'] ?? 'Minuman');
+                    $kategoriRaw = (string)($p['kategori'] ?? 'Minuman');
+                    $kategori = htmlspecialchars($kategoriRaw);
+                    $kategoriLow = htmlspecialchars(kasirLowKat($kategoriRaw));
                 ?>
-                <div class="col-6 col-md-4 col-xl-3" data-kategori="<?php echo $kategori; ?>">
+                <div class="col-6 col-md-4 col-xl-3" data-kategori="<?php echo $kategori; ?>" data-kategori-low="<?php echo $kategoriLow; ?>">
                     <div class="produk-card" data-id="<?php echo $p['id']; ?>" data-nama="<?php echo htmlspecialchars($p['nama'], ENT_QUOTES); ?>" data-harga="<?php echo $p['harga']; ?>">
                         <div class="produk-img-wrap">
                             <?php if ($gambarUrl): ?>
@@ -2018,7 +2094,7 @@ const keranjang = {}; // key=produkId, value={ id, nama, harga, qty }
 let keranjangTerbuka = true; // state toggle keranjang mobile
 let CURRENT_PAYMENT = 'CASH'; // 'CASH' | 'QRIS'
 
-// ============== FILTER KATEGORI PRODUK (CASE INSENSITIVE, cocok vanisa/Vanisa/VANISA) ==============
+// ============== FILTER KATEGORI PRODUK (CASE INSENSITIVE, gunakan attribute data-kategori-low) ==============
 function filterProduk(kat, btnEl) {
     // 1. Toggle class active semua pill (SEMUANYA default PUTIH BORDER OUTLINE; active = SOLID MAROON)
     document.querySelectorAll('.kategori-pills .pill').forEach(b => {
@@ -2027,11 +2103,11 @@ function filterProduk(kat, btnEl) {
     if (btnEl) {
         btnEl.classList.add('kat-active');
     }
-    // 2. Show/Hide semua col produk berdasarkan data-kategori (COMPARE lowercase, tahan case aneh dari DB)
+    // 2. Show/Hide semua col produk berdasarkan data-kategori LOW (100% tidak peduli huruf besar kecil dari DB)
     const katLow = (kat || '').toString().trim().toLowerCase();
-    const items = document.querySelectorAll('#produkGrid > [data-kategori]');
+    const items = document.querySelectorAll('#produkGrid > [data-kategori-low]');
     items.forEach(el => {
-        const elKat = ((el.getAttribute('data-kategori') || 'Minuman') + '').trim().toLowerCase();
+        const elKat = ((el.getAttribute('data-kategori-low') || 'minuman') + '').trim().toLowerCase();
         if (katLow === 'all' || elKat === katLow) {
             el.style.display = '';
         } else {
