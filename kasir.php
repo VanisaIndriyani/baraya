@@ -1160,6 +1160,8 @@ if (!headers_sent()) {
             .ucapan-gambar-stiker { max-width: 78% !important; height: auto !important; border-radius: 10px !important; }
             .ucapan-logo-toko { width:50px !important; height:50px !important; border-radius:14px !important; border:1.5px solid #991B1B !important; padding:3px !important; margin:0 auto 6px auto !important; display:block !important; }
             .receipt img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display:block !important; visibility: visible !important; opacity: 1 !important; }
+            /* Anti fallback teks ikut ke printer (kalaupun gambar error: cetak kosong / logo saja) */
+            #ucapanBackup { display: none !important; }
         }
 
         .keranjang-body::-webkit-scrollbar { width:6px; }
@@ -1807,11 +1809,41 @@ if (!headers_sent()) {
 <div class="receipt" id="receiptKartuUcapan">
     <div class="receipt-card" style="padding: 2px 0 1px 0;">
         <div class="ucapan-gambar-wrapper-top">
+            <?php
+                // Absolute URL anti 404 di hosting subfolder /baraya
+                $ucapanImg = $base_url . '/assets/img/ucapan.png';
+                // Backup SVG base64 JIKA ucapan.png TIDAK ADA di server: kartu ucapan TETAP ADA GAMBAR minimal logo, tidak ICON BROKEN / KOSONG.
+                $svgLogo = 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 640" width="360" height="640">'
+                    . '<rect width="360" height="640" fill="#FFFFFF"/>'
+                    . '<rect x="10" y="10" width="340" height="620" rx="18" ry="18" fill="none" stroke="#FBBF24" stroke-width="5" stroke-dasharray="12,8"/>'
+                    . '<g text-anchor="middle" font-family="Verdana,Geneva,sans-serif" fill="#450A0A">'
+                    . '<text x="180" y="95" font-size="38" font-weight="900">✨  TERIMA KASIH  ✨</text>'
+                    . '<text x="180" y="140" font-size="22" font-weight="700" fill="#991B1B">Es Teller & Dawet Baraya</text>'
+                    . '<text x="180" y="175" font-size="16" font-weight="600" fill="#111827">Jl. Kakatua No.103, Condongcatur</text>'
+                    . '<text x="180" y="200" font-size="16" font-weight="600" fill="#111827">Sleman DIY 55281</text>'
+                    . '<text x="180" y="230" font-size="16" font-weight="900" fill="#059669">📞 WA: +62 831-8930-2691</text>'
+                    . '</g>'
+                    . '<line x1="30" y1="260" x2="330" y2="260" stroke="#9CA3AF" stroke-width="3" stroke-dasharray="8,6"/>'
+                    . '<rect x="50" y="285" width="260" height="70" rx="18" fill="#FFFFFF" stroke="#111827" stroke-width="3"/>'
+                    . '<text x="180" y="320" text-anchor="middle" font-family="Verdana" font-size="18" font-weight="900" fill="#111827">🙏  Rating BINTANG 5  🙏</text>'
+                    . '<text x="180" y="343" text-anchor="middle" font-family="Verdana" font-size="13" font-weight="700" fill="#374151">Klik platform kamu & kasih review ya 💛</text>'
+                    . '<g font-family="Verdana" font-weight="900" fill="#111827">'
+                    . '<rect x="40" y="380" width="280" height="56" rx="16" fill="#FEF3C7" stroke="#111827" stroke-width="3"/>'
+                    . '<text x="68" y="416" font-size="18">📍  GOOGLE MAPS</text><text x="280" y="416" text-anchor="middle" font-size="18">★★★★★</text>'
+                    . '<rect x="40" y="446" width="280" height="56" rx="16" fill="#FEF3C7" stroke="#111827" stroke-width="3"/>'
+                    . '<text x="68" y="482" font-size="18">🛵  SHOPEEFOOD</text><text x="280" y="482" text-anchor="middle" font-size="18">★★★★★</text>'
+                    . '<rect x="40" y="512" width="280" height="56" rx="16" fill="#FEF3C7" stroke="#111827" stroke-width="3"/>'
+                    . '<text x="68" y="548" font-size="18">🚗  GOFOOD GOJEK</text><text x="280" y="548" text-anchor="middle" font-size="18">★★★★★</text>'
+                    . '<rect x="40" y="578" width="280" height="48" rx="16" fill="#FEF3C7" stroke="#111827" stroke-width="3"/>'
+                    . '<text x="68" y="610" font-size="18">🛺  GRABFOOD</text><text x="280" y="610" text-anchor="middle" font-size="18">★★★★★</text>'
+                    . '</g>'
+                    . '</svg>');
+            ?>
             <img
-                src="assets/img/ucapan.png"
+                src="<?php echo htmlspecialchars($ucapanImg); ?>"
                 class="ucapan-gambar-hero"
                 alt="Kartu Ucapan Es Teller Dawet Baraya"
-                onerror="this.style.display='none'; document.getElementById('ucapanBackup').style.display='block';"
+                onerror="this.onerror=null; this.src='<?php echo $svgLogo; ?>';"
                 loading="eager"
                 decoding="sync">
         </div>
