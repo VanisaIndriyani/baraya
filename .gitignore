@@ -1,0 +1,13 @@
+uploads/bukti/*
+uploads/nota/*
+uploads/produk_kasir/*
+!uploads/bukti/.gitkeep
+!uploads/nota/.gitkeep
+!uploads/produk_kasir/.gitkeep
+.DS_Store
+Thumbs.db
+*.log
+.env
+.idea
+.vscode/*
+!.vscode/settings.json
