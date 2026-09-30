@@ -108,10 +108,44 @@ function asistenBersihkanCatatan(string $teks): string
     return ucwords($catatan);
 }
 
+function asistenTanggalDariHari(int $hari, int $bulan, int $tahun): ?string
+{
+    if (!checkdate($bulan, $hari, $tahun)) {
+        return null;
+    }
+    return sprintf('%04d-%02d-%02d', $tahun, $bulan, $hari);
+}
+
 function asistenTanggal(string $teks): string
 {
     if (str_contains($teks, 'kemarin')) {
         return date('Y-m-d', strtotime('-1 day'));
+    }
+    $namaBulan = [
+        'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4, 'mei' => 5, 'juni' => 6,
+        'juli' => 7, 'agustus' => 8, 'september' => 9, 'sept' => 9, 'sep' => 9,
+        'oktober' => 10, 'november' => 11, 'desember' => 12,
+    ];
+    if (preg_match('/\b(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|sept|sep|oktober|november|desember)\b(?:\s+(\d{4}))?/', $teks, $m)) {
+        $tahun = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : (int) date('Y');
+        $hasil = asistenTanggalDariHari((int) $m[1], $namaBulan[$m[2]], $tahun);
+        if ($hasil) {
+            return $hasil;
+        }
+    }
+    if (preg_match('/\b(?:tanggal|tgl)\s+(\d{1,2})\b/', $teks, $m)) {
+        $hari = (int) $m[1];
+        $bulan = (int) date('n');
+        $tahun = (int) date('Y');
+        if ($hari > (int) date('j')) {
+            $lalu = strtotime('first day of last month');
+            $bulan = (int) date('n', $lalu);
+            $tahun = (int) date('Y', $lalu);
+        }
+        $hasil = asistenTanggalDariHari($hari, $bulan, $tahun);
+        if ($hasil) {
+            return $hasil;
+        }
     }
     if (preg_match('/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/', $teks, $m)) {
         $tahun = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : (int) date('Y');
@@ -853,6 +887,74 @@ function asistenAiBalas(PDO $pdo, string $pesan, array $riwayat): ?array
     return ['teks' => $jawaban, 'simpan' => false];
 }
 
+function asistenLabelTanggal(string $tanggal): string
+{
+    $nama = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    $waktu = strtotime($tanggal);
+    return (int) date('j', $waktu) . ' ' . $nama[(int) date('n', $waktu)] . ' ' . date('Y', $waktu);
+}
+
+function asistenJawabFaktaTanggal(PDO $pdo, string $pesan, array $riwayat): ?array
+{
+    $rapi = asistenRapikan($pesan);
+    $adaTanggal = str_contains($rapi, 'kemarin')
+        || preg_match('/\b(?:tanggal|tgl)\s+\d{1,2}\b/', $rapi)
+        || preg_match('/\d{1,2}[\/\-]\d{1,2}/', $rapi)
+        || preg_match('/\d{1,2}\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|sept|sep|oktober|november|desember)/', $rapi);
+    if (!$adaTanggal) {
+        return null;
+    }
+
+    $konteks = $rapi;
+    foreach (array_reverse($riwayat) as $item) {
+        if (!is_array($item) || ($item['dari'] ?? '') !== 'user') {
+            continue;
+        }
+        $konteks .= ' ' . asistenRapikan((string) ($item['teks'] ?? ''));
+        break;
+    }
+
+    $soalKasir = str_contains($konteks, 'kasir') || str_contains($konteks, 'struk') || str_contains($konteks, 'qris');
+    $soalPendapatan = str_contains($konteks, 'pendapatan') || str_contains($konteks, 'omzet') || str_contains($konteks, 'pemasukan') || str_contains($konteks, 'masuk');
+    $soalKeluar = str_contains($konteks, 'pengeluaran') || str_contains($konteks, 'belanja');
+    if (!$soalKasir && !$soalPendapatan && !$soalKeluar) {
+        return null;
+    }
+
+    $tanggal = asistenTanggal($rapi);
+    $angka = asistenAmbilAngka($pdo, $tanggal);
+    $label = asistenLabelTanggal($tanggal);
+    $baris = [];
+
+    if ($soalKasir || ($soalPendapatan && !$soalKeluar)) {
+        $detail = asistenDetailKasir($pdo, $tanggal);
+        $baris[] = 'Omzet kasir ' . $label . ': ' . asistenRp($angka['kasir'] ?? 0)
+            . ' dari ' . (int) ($angka['kasir_jumlah'] ?? 0) . ' struk.';
+        $baris[] = 'Cash ' . asistenRp($angka['kasir_cash'] ?? 0) . ', QRIS ' . asistenRp($angka['kasir_qris'] ?? 0) . '.';
+        if ($detail['struk']) {
+            $daftar = [];
+            foreach ($detail['struk'] as $struk) {
+                $daftar[] = $struk['jam'] . ' ' . $struk['bayar'] . ' ' . asistenRp($struk['total'])
+                    . ($struk['item'] !== '' ? ' (' . $struk['item'] . ')' : '');
+            }
+            $baris[] = implode("\n", $daftar);
+        }
+    }
+    if ($soalPendapatan && !$soalKasir) {
+        array_unshift($baris, 'Catatan penjualan manual ' . $label . ': ' . asistenRp($angka['pendapatan']) . '.');
+    }
+    if ($soalKeluar && !$soalKasir) {
+        $baris[] = 'Pengeluaran ' . $label . ': ' . asistenRp($angka['pengeluaran'])
+            . '. Beli bahan ' . asistenRp($angka['pembelian'])
+            . ', beli harian ' . asistenRp($angka['beli_harian']) . '.';
+    }
+    if (!$baris) {
+        return null;
+    }
+
+    return ['teks' => implode("\n", $baris), 'simpan' => false];
+}
+
 function asistenJawab(PDO $pdo, string $pesanMentah, array $riwayat = []): array
 {
     $pesanMentah = trim($pesanMentah);
@@ -863,6 +965,11 @@ function asistenJawab(PDO $pdo, string $pesanMentah, array $riwayat = []): array
     $lokal = asistenJawabLokal($pdo, $pesanMentah);
     if (!empty($lokal['simpan'])) {
         return $lokal;
+    }
+
+    $fakta = asistenJawabFaktaTanggal($pdo, $pesanMentah, $riwayat);
+    if ($fakta) {
+        return $fakta;
     }
 
     $ai = asistenAiBalas($pdo, $pesanMentah, $riwayat);
