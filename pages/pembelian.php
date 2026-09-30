@@ -668,218 +668,215 @@ if (isset($_GET['hapus'])) {
 }
 
 $search = trim($_GET['search'] ?? '');
+$awal_bulan = date('Y-m-01');
+$akhir_bulan = date('Y-m-t');
+$nama_bulan_beli = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+$label_bulan_beli = $nama_bulan_beli[(int) date('n')] . ' ' . date('Y');
+$where_beli = ['p.tanggal >= ?', 'p.tanggal <= ?'];
+$params_beli = [$awal_bulan, $akhir_bulan];
 if ($search !== '') {
-    $stmt = $pdo->prepare("
-        SELECT COUNT(*) AS total_data, COALESCE(SUM(p.total), 0) AS total_nominal
-        FROM pembelian p
-        LEFT JOIN supplier s ON p.id_supplier = s.id
-        WHERE s.nama LIKE ? OR p.metode_pembayaran LIKE ?
-    ");
-    $keyword = '%' . $search . '%';
-    $stmt->execute([$keyword, $keyword]);
-    $ringkasan_pembelian = $stmt->fetch();
-
-    $stmt = $pdo->prepare("
-        SELECT p.*, s.nama AS supplier_nama
-        FROM pembelian p
-        LEFT JOIN supplier s ON p.id_supplier = s.id
-        WHERE s.nama LIKE ? OR p.metode_pembayaran LIKE ?
-        ORDER BY p.tanggal DESC, p.created_at DESC
-        LIMIT 50
-    ");
-    $stmt->execute([$keyword, $keyword]);
-    $pembelian = $stmt->fetchAll();
-} else {
-    $ringkasan_pembelian = $pdo->query("
-        SELECT COUNT(*) AS total_data, COALESCE(SUM(total), 0) AS total_nominal
-        FROM pembelian
-    ")->fetch();
-    $pembelian = $pdo->query("
-        SELECT p.*, s.nama AS supplier_nama
-        FROM pembelian p
-        LEFT JOIN supplier s ON p.id_supplier = s.id
-        ORDER BY p.tanggal DESC, p.created_at DESC
-        LIMIT 50
-    ")->fetchAll();
+    $where_beli[] = '(s.nama LIKE ? OR p.metode_pembayaran LIKE ?)';
+    $params_beli[] = '%' . $search . '%';
+    $params_beli[] = '%' . $search . '%';
 }
+$where_beli_sql = implode(' AND ', $where_beli);
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) AS total_data, COALESCE(SUM(p.total), 0) AS total_nominal
+    FROM pembelian p
+    LEFT JOIN supplier s ON p.id_supplier = s.id
+    WHERE $where_beli_sql
+");
+$stmt->execute($params_beli);
+$ringkasan_pembelian = $stmt->fetch();
+$stmt = $pdo->prepare("
+    SELECT p.*, s.nama AS supplier_nama
+    FROM pembelian p
+    LEFT JOIN supplier s ON p.id_supplier = s.id
+    WHERE $where_beli_sql
+    ORDER BY p.tanggal DESC, p.created_at DESC
+");
+$stmt->execute($params_beli);
+$pembelian = $stmt->fetchAll();
 ?>
 
-<div class="page-header" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); border-bottom: 3px solid #FBBF24;">
-    <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none mb-2 d-inline-block opacity-90 hover-opacity-100" style="transition:opacity 0.2s ease;"><i class="bi bi-arrow-left-circle me-1"></i> Kembali ke Dashboard</a>
-    <h4 class="mb-0 fw-black" style="text-shadow: 0 2px 12px rgba(251,191,36,0.25);"><i class="bi bi-cart-plus me-2" style="color:#FDE68A;"></i>Beli Bahan (Stok)</h4>
-</div>
+<style>
+.beli-hero {
+    background: linear-gradient(135deg, #450A0A 0%, #7F1D1D 55%, #991B1B 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 16px 36px rgba(127, 29, 29, 0.22);
+    position: relative;
+    overflow: hidden;
+}
+.beli-hero::after {
+    content: "";
+    position: absolute;
+    right: -36px;
+    top: -46px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(251, 191, 36, 0.16);
+}
+.beli-stat {
+    border-radius: 18px;
+    padding: 16px;
+    height: 100%;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+.beli-stat .angka {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.15rem, 3.2vw, 1.55rem);
+    letter-spacing: -0.4px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.beli-item {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    padding: 14px;
+}
+.beli-aksi .btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.beli-nota {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #FDE68A;
+    flex-shrink: 0;
+}
+@media (max-width: 576px) {
+    .beli-hero { padding: 16px; border-radius: 18px; }
+}
+</style>
 
-<div class="d-flex justify-content-end mb-3 pt-3">
-    <button type="button" class="btn btn-lg fw-bold rounded-4 px-5" data-bs-toggle="modal" data-bs-target="#tambahModal" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); color:#FDE68A; border: 2px solid #FBBF24; box-shadow: 0 10px 22px rgba(153,27,27,0.32);">
-        <i class="bi bi-plus-lg me-2"></i> Tambah Pembelian
-    </button>
-</div>
-
-<div class="row g-4 mb-4">
-    <div class="col-md-6 col-xl">
-        <div class="stat-card rounded-4 p-4" style="background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); color: #FDE68A; border: 2px solid rgba(251,191,36,0.5); box-shadow: 0 18px 34px rgba(69,10,10,0.28);">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="stat-label text-white-50 fw-semibold">Total Nominal Pembelian</div>
-                    <h3 class="stat-value fw-black mt-1" style="color:#FFF;">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></h3>
-                </div>
-                <i class="bi bi-bag-check-fill stat-icon" style="color:#FBBF24; font-size: 36px;"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl">
-        <div class="stat-card rounded-4 p-4" style="background: linear-gradient(135deg,#FEF3C7 0%,#FDE68A 55%,#FBBF24 100%); color: #450A0A; border: 2px solid #F59E0B; box-shadow: 0 18px 34px rgba(251,191,36,0.22);">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="stat-label fw-semibold opacity-80">Jumlah Transaksi</div>
-                    <h3 class="stat-value fw-black mt-1" style="color:#7F1D1D;"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0, 0, ',', '.'); ?></h3>
-                    <small class="opacity-75 fw-medium">data pembelian stok bahan</small>
-                </div>
-                <i class="bi bi-receipt-cutoff stat-icon" style="color:#7F1D1D; font-size: 36px;"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card border-0 rounded-4 mb-4 overflow-hidden" style="box-shadow: 0 20px 45px rgba(15,23,42,0.12); border: 2px solid rgba(251,191,36,0.18);">
-    <div class="card-header bg-white border-0 px-4 py-4 d-flex flex-wrap gap-3 justify-content-between align-items-center" style="border-bottom: 2px dashed rgba(251,191,36,0.4);">
+<div class="beli-hero mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 position-relative" style="z-index:1;">
         <div>
-            <h6 class="fw-black mb-1" style="color: #7F1D1D; font-size: 1.1rem;">
-                <i class="bi bi-clock-history me-2" style="color:#FBBF24;"></i>Riwayat Pembelian
-            </h6>
-            <small class="text-muted fw-semibold opacity-85">
-                📊 <?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> data • Total: <span style="color:#991B1B;" class="fw-bold">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></span>
-            </small>
+            <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none d-inline-flex align-items-center gap-1 mb-2 opacity-75">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+            <h4 class="mb-1 fw-bold">Beli Bahan (Stok)</h4>
+            <div class="small" style="color:#FDE68A;">Catatan <?php echo htmlspecialchars($label_bulan_beli); ?>. Bulan baru, daftar ini mulai kosong. Data lama ada di laporan.</div>
         </div>
-        <div class="d-flex gap-2 align-items-center">
-            <form method="GET" class="input-group input-group-lg rounded-4 overflow-hidden" style="width: 340px; border: 2px solid rgba(251,191,36,0.45); box-shadow: 0 4px 12px rgba(251,191,36,0.12);">
-                <input type="text" class="form-control border-0" style="background:#FFFBEB;" name="search" placeholder="🔍 Cari nama barang / nota..." value="<?php echo htmlspecialchars($search); ?>">
-                <button class="btn border-0" type="submit" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A;"><i class="bi bi-search fw-bold"></i></button>
-                <?php if ($search !== ''): ?>
-                <a href="pembelian.php" class="btn btn-outline-secondary border-0" style="background:#F3F4F6; color:#6B7280;">
-                    <i class="bi bi-x-lg"></i>
-                </a>
-                <?php endif; ?>
-            </form>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+            <a href="<?php echo $base_url; ?>/pages/laporan.php" class="btn rounded-pill fw-semibold" style="background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(251,191,36,0.45);">
+                <i class="bi bi-journal-text me-1"></i>Laporan
+            </a>
+            <button type="button" class="btn rounded-pill fw-semibold px-4" style="background:#FBBF24; color:#450A0A;" data-bs-toggle="modal" data-bs-target="#tambahModal">
+                <i class="bi bi-plus-lg me-1"></i>Tambah Pembelian
+            </button>
         </div>
     </div>
+</div>
 
-    <?php if (empty($pembelian)): ?>
-    <div class="card-body text-center py-6" style="padding: 7rem 2rem;">
-        <i class="bi bi-inbox fs-1 opacity-25 d-block mb-4" style="color:#7F1D1D;"></i>
-        <h5 class="mb-2 fw-bold" style="color:#450A0A;">Belum ada data pembelian</h5>
-        <p class="text-muted small mb-4 fw-medium opacity-80">Silakan klik tombol Tambah Pembelian di kanan atas ya.</p>
-        <button class="btn btn-lg fw-bold rounded-4 px-5" data-bs-toggle="modal" data-bs-target="#tambahModal" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border: 2px solid #FBBF24;">
-            <i class="bi bi-plus-lg me-2"></i>Tambah Pembelian
+<div class="row g-3 mb-4">
+    <div class="col-6">
+        <div class="beli-stat" style="background:linear-gradient(135deg,#450A0A,#991B1B); color:#fff;">
+            <div class="small fw-semibold mb-1" style="color:#FDE68A;"><i class="bi bi-bag-check-fill me-1"></i>Total bulan ini</div>
+            <div class="angka">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="beli-stat" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#78350F;">
+            <div class="small fw-semibold mb-1"><i class="bi bi-receipt me-1"></i>Jumlah catatan</div>
+            <div class="angka"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0, 0, ',', '.'); ?></div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body">
+        <form method="GET">
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control" name="search" placeholder="Cari barang atau cara bayar" value="<?php echo htmlspecialchars($search); ?>">
+                <button class="btn text-white" type="submit" style="background:#991B1B;" aria-label="Cari"><i class="bi bi-search"></i></button>
+                <?php if ($search !== ''): ?>
+                <a href="pembelian.php" class="btn btn-outline-secondary" aria-label="Reset"><i class="bi bi-x-lg"></i></a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h5 class="mb-0 fw-bold">Riwayat <?php echo htmlspecialchars($label_bulan_beli); ?></h5>
+        <small class="text-muted"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> catatan</small>
+    </div>
+</div>
+
+<?php if (empty($pembelian)): ?>
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body text-center py-5">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:72px;height:72px;background:#FEF3C7;color:#92400E;">
+            <i class="bi bi-inbox" style="font-size:1.7rem;"></i>
+        </div>
+        <h5 class="fw-bold mb-1">Belum ada pembelian bulan ini</h5>
+        <p class="text-muted small mb-3">Data bulan lalu tetap ada di laporan.</p>
+        <button class="btn rounded-pill text-white px-4" style="background:#991B1B;" data-bs-toggle="modal" data-bs-target="#tambahModal">
+            <i class="bi bi-plus-lg me-1"></i>Tambah Pembelian
         </button>
     </div>
-    <?php else: ?>
-    <div class="table-responsive px-1 pb-1">
-        <table class="table table-hover align-middle mb-0" style="min-width: 920px;">
-            <thead>
-                <tr>
-                    <th class="fw-black border-0" style="padding:18px 20px 18px 20px !important; border-top-left-radius: 18px; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
-                        <i class="bi bi-calendar3 me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">TANGGAL</span>
-                    </th>
-                    <th class="fw-black border-0" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
-                        <i class="bi bi-receipt me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">NOTA</span>
-                    </th>
-                    <th class="fw-black border-0" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
-                        <i class="bi bi-box-seam me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">ITEM BARANG</span>
-                    </th>
-                    <th class="fw-black border-0" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
-                        <i class="bi bi-credit-card me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">METODE</span>
-                    </th>
-                    <th class="fw-black border-0 text-end" style="padding:18px 16px 18px 16px !important; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
-                        <i class="bi bi-cash-coin me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">TOTAL</span>
-                    </th>
-                    <th class="fw-black border-0 text-center" style="padding:18px 20px 18px 20px !important; border-top-right-radius: 18px; letter-spacing: 0.5px; background: linear-gradient(135deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%) !important; color:#FFFFFF !important; opacity: 1 !important; font-size:14px; box-shadow: inset 0 1px 0 rgba(251,191,36,0.25);">
-                        <i class="bi bi-gear-wide-connected me-2" style="font-size:17px; color:#FBBF24; display:inline-block; vertical-align:-2px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8));"></i><span style="color:#FFFFFF !important; opacity:1; font-weight:900; font-size:14px;">AKSI</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="border-top-0">
-
-    <?php foreach ($pembelian as $p): ?>
-        <?php
-        $details = ambilDetailPembelian($pdo, $p['id']);
-        $hutang_pembelian = ambilHutangPembelian($pdo, $p['id']);
-        $tanggal_jatuh_tempo_edit = $hutang_pembelian['tanggal_jatuh_tempo'] ?? '';
-        $item_names = array_map(fn($d) => $d['barang_nama'] . ' x' . ((int) ($d['qty'] ?? 1)), $details);
-        ?>
-                <tr class="border-bottom border-light cursor-pointer transition-card" data-bs-toggle="modal" data-bs-target="#detailPembelianModal<?php echo $p['id']; ?>" style="border-bottom: 1.5px solid rgba(251,191,36,0.18) !important;">
-                    <td class="px-4 py-4">
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: linear-gradient(135deg,rgba(254,243,199,0.7),rgba(253,230,138,0.6)); color:#7F1D1D; border:1.5px solid rgba(251,191,36,0.55);">
-                                <i class="bi bi-calendar-event-fill me-1"></i>
-                                <?php echo date('d M Y', strtotime($p['tanggal'])); ?>
-                            </span>
-                            <span class="small fw-bold text-muted opacity-75">#PBL-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></span>
-                        </div>
-                    </td>
-                    <td class="px-3 py-4">
-                        <?php if ($p['nota']): ?>
-                        <div class="rounded-3 overflow-hidden" style="width:52px;height:52px; box-shadow:0 4px 10px rgba(127,29,29,0.15); border: 1.5px solid #FBBF24;">
-                            <img src="<?php echo $base_url; ?>/uploads/nota/<?php echo $p['nota']; ?>" alt="Nota" style="width:100%;height:100%;object-fit:cover;">
-                        </div>
-                        <?php else: ?>
-                        <div class="d-flex align-items-center justify-content-center rounded-3" style="width:52px;height:52px; background:linear-gradient(135deg,#FEF2F2,#FEE2E2); color:#7F1D1D; border:1.5px dashed rgba(127,29,29,0.45);">
-                            <i class="bi bi-file-earmark-image-fill"></i>
-                        </div>
-                        <?php endif; ?>
-                    </td>
-                    <td class="px-3 py-4">
-                        <?php if (!empty($item_names)): ?>
-                        <span class="d-block fw-bold text-dark mb-1" style="max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; font-size:0.97rem;">
-                            <?php echo htmlspecialchars(implode(', ', array_slice($item_names, 0, 2))); ?>
-                        </span>
-                        <?php if (count($item_names) > 2): ?>
-                        <small class="fw-semibold opacity-80" style="color:#991B1B;">+<?php echo count($item_names) - 2; ?> item lainnya</small>
-                        <?php endif; ?>
-                        <?php else: ?>
-                        <span class="small fst-italic text-muted opacity-80 fw-medium">Tidak ada detail barang</span>
-                        <?php endif; ?>
-                    </td>
-                    <td class="px-3 py-4">
-                        <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: linear-gradient(135deg,#450A0A,#7F1D1D,#991B1B); color:#FDE68A; border:1.5px solid #FBBF24;">
-                            <i class="bi bi-credit-card-2-front-fill me-1"></i>
-                            <?php echo labelMetodePembelian($p['metode_pembayaran']); ?>
-                        </span>
-                    </td>
-                    <td class="px-3 py-4 text-end">
-                        <h6 class="fw-black mb-0" style="color:#7F1D1D; font-size: 1.1rem; letter-spacing:0.2px;">
-                            Rp <?php echo number_format($p['total'], 0, ',', '.'); ?>
-                        </h6>
-                    </td>
-                    <td class="px-4 py-4 text-center">
-                        <div class="d-flex justify-content-center gap-3 align-items-center">
-                            <button class="btn-edit-row" onclick="event.stopPropagation(); bukaEditPembelian(<?php echo $p['id']; ?>);" title="Edit Pembelian">
-                                <i class="bi bi-pencil-fill"></i>
-                            </button>
-                            <button class="btn-del-row" onclick="event.stopPropagation(); hapusPembelian(<?php echo $p['id']; ?>);" title="Hapus Pembelian">
-                                <i class="bi bi-trash3-fill"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-    <?php endforeach; ?>
-
-            </tbody>
-            <tfoot>
-                <tr style="background: linear-gradient(90deg,#450A0A 0%,#7F1D1D 50%,#991B1B 100%); border-top: 3px solid #FBBF24;">
-                    <td colspan="4" class="px-4 py-4 fw-black text-end text-white">
-                        <span style="color:#FDE68A; letter-spacing:0.4px;">📌 TOTAL SEMUA (<?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> transaksi):</span>
-                    </td>
-                    <td class="px-3 py-4 fw-black text-end" style="border-bottom-right-radius: 0;">
-                        <h4 class="mb-0" style="color:#FBBF24; letter-spacing: 0.8px; text-shadow: 0 2px 10px rgba(251,191,36,0.35);">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></h4>
-                    </td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    <?php endif; ?>
 </div>
+<?php else: ?>
+<div class="d-grid gap-3 mb-4">
+<?php foreach ($pembelian as $p): ?>
+    <?php
+    $details = ambilDetailPembelian($pdo, $p['id']);
+    $item_names = array_map(static function ($d) {
+        return ($d['barang_nama'] ?: 'Barang') . ' x' . ((int) ($d['qty'] ?? 1));
+    }, $details);
+    $ringkas_item = $item_names ? implode(', ', array_slice($item_names, 0, 3)) : 'Tidak ada detail barang';
+    if (count($item_names) > 3) {
+        $ringkas_item .= ' +' . (count($item_names) - 3);
+    }
+    ?>
+    <div class="beli-item">
+        <div class="d-flex gap-3 align-items-start">
+            <button type="button" class="btn p-0 border-0 bg-transparent flex-shrink-0" data-bs-toggle="modal" data-bs-target="#detailPembelianModal<?php echo $p['id']; ?>" aria-label="Lihat nota">
+                <?php if ($p['nota']): ?>
+                <img class="beli-nota" src="<?php echo $base_url; ?>/uploads/nota/<?php echo htmlspecialchars($p['nota']); ?>" alt="Nota">
+                <?php else: ?>
+                <span class="beli-nota d-inline-flex align-items-center justify-content-center" style="background:#FEF3C7; color:#92400E;"><i class="bi bi-receipt"></i></span>
+                <?php endif; ?>
+            </button>
+            <button type="button" class="btn p-0 text-start border-0 bg-transparent flex-grow-1 min-w-0" data-bs-toggle="modal" data-bs-target="#detailPembelianModal<?php echo $p['id']; ?>">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <span class="badge rounded-pill" style="background:#FEF3C7; color:#78350F;">
+                        <i class="bi bi-calendar-event me-1"></i><?php echo date('d M Y', strtotime($p['tanggal'])); ?>
+                    </span>
+                    <span class="small text-muted">#PBL-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></span>
+                </div>
+                <div class="fw-bold" style="color:#7F1D1D; font-size:1.15rem;">Rp <?php echo number_format($p['total'], 0, ',', '.'); ?></div>
+                <div class="small text-muted"><?php echo htmlspecialchars($ringkas_item); ?></div>
+                <div class="small mt-1" style="color:#991B1B;"><?php echo htmlspecialchars(labelMetodePembelian($p['metode_pembayaran'])); ?></div>
+            </button>
+            <div class="beli-aksi d-flex gap-2 flex-shrink-0">
+                <button type="button" class="btn" style="background:#FEF3C7; color:#92400E;" onclick="bukaEditPembelian(<?php echo $p['id']; ?>);" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn" style="background:#FEE2E2; color:#991B1B;" onclick="hapusPembelian(<?php echo $p['id']; ?>);" title="Hapus">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <!-- MODAL SEMUA DATA PEMBELIAN (DILETAKKAN DI LUAR TABLE = HTML VALID, GA ADA TOMBOL NYANGKUT!) -->
 <?php foreach ($pembelian as $p): ?>

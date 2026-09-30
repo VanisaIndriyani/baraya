@@ -121,164 +121,169 @@ if ($filter_semua) {
     $data_bulan_ini = $stmt->fetchAll();
 }
 
-$stmt = $pdo->query("SELECT * FROM gaji_owner ORDER BY bulan DESC, FIELD(owner_key,'vanisa','dimas')");
-$data_riwayat = $stmt->fetchAll();
-
 $total_bulan_ini = 0;
 foreach ($data_bulan_ini as $d) $total_bulan_ini += (float) $d['nominal'];
-$label_bulan = $filter_semua ? 'Semua Bulan' : date('F Y', strtotime($bulan_terpilih . '-01'));
-
-$label_bulan_list = [];
-$stmt = $pdo->query("SELECT DISTINCT bulan FROM gaji_owner ORDER BY bulan DESC LIMIT 12");
-foreach ($stmt->fetchAll() as $row) $label_bulan_list[] = $row['bulan'];
+$nama_bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+$labelBulanGaji = function ($ym) use ($nama_bulan) {
+    $waktu = strtotime($ym . '-01');
+    if (!$waktu) return (string) $ym;
+    return $nama_bulan[(int) date('n', $waktu)] . ' ' . date('Y', $waktu);
+};
+$label_bulan = $filter_semua ? 'Semua Bulan' : $labelBulanGaji($bulan_terpilih);
+$bulan_form = $filter_semua ? date('Y-m') : $bulan_terpilih;
 ?>
 
-<div class="page-header">
-    <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none mb-2 d-inline-block"><i class="bi bi-arrow-left"></i> Kembali</a>
-    <h4 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Gaji &amp; Bagi Hasil Owner</h4>
-    <small class="text-white-50">Catat gaji Dimas / vanisa per bulan.</small>
+<style>
+.gaji-hero {
+    background: linear-gradient(135deg, #450A0A 0%, #7F1D1D 55%, #991B1B 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 16px 36px rgba(127, 29, 29, 0.22);
+    position: relative;
+    overflow: hidden;
+}
+.gaji-hero::after {
+    content: "";
+    position: absolute;
+    right: -36px;
+    top: -46px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(251, 191, 36, 0.16);
+}
+.gaji-total {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.45rem, 4vw, 2rem);
+    letter-spacing: -0.6px;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+.gaji-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    height: 100%;
+}
+.gaji-top { padding: 16px 18px; color: #fff; }
+.gaji-nominal {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+    letter-spacing: -0.3px;
+    overflow-wrap: anywhere;
+}
+.gaji-filter {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    padding: 14px;
+}
+.btn-gaji {
+    background: #991B1B;
+    color: #fff;
+    border: 0;
+    border-radius: 12px;
+    font-weight: 600;
+}
+.btn-gaji:hover { background: #7F1D1D; color: #fff; }
+@media (max-width: 576px) {
+    .gaji-hero { padding: 16px; border-radius: 18px; }
+    .gaji-filter .btn, .gaji-filter .form-control { width: 100%; }
+}
+</style>
+
+<div class="gaji-hero mb-4">
+    <div class="position-relative" style="z-index:1;">
+        <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none d-inline-flex align-items-center gap-1 mb-2 opacity-75">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+        <h4 class="mb-1 fw-bold">Gaji Owner</h4>
+        <div class="small mb-3" style="color:#FDE68A;">Satu kartu untuk tiap gaji Vanisa dan Dimas.</div>
+        <div class="small opacity-75">Total <?php echo htmlspecialchars($label_bulan); ?></div>
+        <div class="gaji-total">Rp <?php echo number_format($total_bulan_ini, 0, ',', '.'); ?></div>
+    </div>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <small class="text-muted">Total Gaji <?php echo htmlspecialchars($label_bulan); ?></small>
-                <h4 class="mb-0 text-danger">Rp <?php echo number_format($total_bulan_ini, 0, ',', '.'); ?></h4>
-            </div>
+<div class="gaji-filter mb-4">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+            <label class="form-label mb-1">Pilih bulan</label>
+            <input type="month" class="form-control" name="bulan" value="<?php echo $filter_semua ? '' : htmlspecialchars($bulan_terpilih); ?>">
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <small class="text-muted">Data Gaji <?php echo $filter_semua ? 'Total' : 'Bulan Ini'; ?></small>
-                <h4 class="mb-0 text-primary"><?php echo count($data_bulan_ini); ?> data</h4>
-            </div>
+        <div class="col-6 col-md-auto">
+            <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-funnel"></i> Filter</button>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <small class="text-muted">Rata-rata / Data (<?php echo $filter_semua ? 'Semua' : 'Bulan Ini'; ?>)</small>
-                <h4 class="mb-0 text-success">Rp <?php echo count($data_bulan_ini) > 0 ? number_format($total_bulan_ini / count($data_bulan_ini), 0, ',', '.') : 0; ?></h4>
-            </div>
+        <div class="col-6 col-md-auto">
+            <a href="modal-owner.php" class="btn btn-outline-secondary">Bulan ini</a>
         </div>
-    </div>
-</div>
-
-<div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-body">
-        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
-            <form method="GET" class="row g-2 align-items-end">
-                <div class="col-auto">
-                    <label class="form-label mb-1">Pilih Bulan</label>
-                    <input type="month" class="form-control" name="bulan" value="<?php echo $filter_semua ? '' : htmlspecialchars($bulan_terpilih); ?>" <?php echo $filter_semua ? '' : 'required'; ?>>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel"></i> Filter</button>
-                </div>
-                <div class="col-auto">
-                    <a href="modal-owner.php" class="btn btn-outline-secondary">Bulan Ini</a>
-                </div>
-                <div class="col-auto">
-                    <a href="modal-owner.php?bulan=all" class="btn btn-outline-success <?php echo $filter_semua ? 'active' : ''; ?>">
-                        <i class="bi bi-list-ul"></i> Semua
-                    </a>
-                </div>
-            </form>
-            <button type="button" class="btn btn-primary" onclick="bukaModalGaji()">
-                <i class="bi bi-plus-lg"></i> Catat Gaji Bulanan
+        <div class="col-12 col-md-auto">
+            <a href="modal-owner.php?bulan=all" class="btn <?php echo $filter_semua ? 'btn-gaji' : 'btn-outline-secondary'; ?>">Semua gaji</a>
+        </div>
+        <div class="col-12 col-md-auto ms-md-auto">
+            <button type="button" class="btn btn-gaji" onclick="bukaModalGaji()">
+                <i class="bi bi-plus-lg"></i> Catat gaji
             </button>
         </div>
-    </div>
+    </form>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-body">
-        <h5 class="mb-3">Gaji <?php echo htmlspecialchars($label_bulan); ?></h5>
-        <?php if (empty($data_bulan_ini)): ?>
-            <div class="text-center py-4 text-muted">
-                Belum ada data. Klik <b>Catat Gaji Bulanan</b> untuk mengisi gaji Dimas / vanisa.
-            </div>
-        <?php else: ?>
-        <div class="row g-3">
-            <?php foreach ($data_bulan_ini as $d): ?>
-            <div class="col-md-6">
-                <div class="card border-0 rounded-4 bg-light">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
-                                    <i class="bi bi-person-fill text-primary fs-4"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars(labelOwnerGaji($d['owner_key'])); ?></h5>
-                                    <small class="text-muted"><?php echo htmlspecialchars(date('F Y', strtotime($d['bulan'] . '-01'))); ?></small>
-                                </div>
-                            </div>
-                            <h3 class="fw-bold text-danger mb-0">Rp <?php echo number_format($d['nominal'], 0, ',', '.'); ?></h3>
-                        </div>
-                        <?php if (!empty($d['keterangan'])): ?>
-                        <div class="mt-3 small text-secondary border-top pt-2">
-                            <i class="bi bi-chat-dots"></i> <?php echo htmlspecialchars($d['keterangan']); ?>
-                        </div>
-                        <?php endif; ?>
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <button class="btn btn-sm btn-warning"
-                                data-id="<?php echo (int)$d['id']; ?>"
-                                data-owner="<?php echo htmlspecialchars($d['owner_key'], ENT_QUOTES); ?>"
-                                data-bulan="<?php echo htmlspecialchars($d['bulan'], ENT_QUOTES); ?>"
-                                data-nominal="<?php echo (float)$d['nominal']; ?>"
-                                data-keterangan="<?php echo htmlspecialchars($d['keterangan'] ?? '', ENT_QUOTES); ?>"
-                                onclick="bukaModalGajiDariBtn(this)">
-                                <i class="bi bi-pencil"></i> Edit
-                            </button>
-                            <form method="POST" class="d-inline" onsubmit="return confirm('Hapus data gaji ini?')">
-                                <input type="hidden" name="action" value="hapus">
-                                <input type="hidden" name="id" value="<?php echo (int)$d['id']; ?>">
-                                <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Hapus</button>
-                            </form>
-                        </div>
+<?php if (empty($data_bulan_ini)): ?>
+    <div class="gaji-card text-center text-muted py-5 px-3">
+        Belum ada gaji <?php echo $filter_semua ? '' : 'di bulan ini'; ?>.
+        Klik <b>Catat gaji</b> untuk mengisi gaji Vanisa atau Dimas.
+    </div>
+<?php else: ?>
+<div class="row g-3">
+    <?php foreach ($data_bulan_ini as $d):
+        $vanisa = $d['owner_key'] === 'vanisa';
+        $bg = $vanisa ? 'linear-gradient(135deg,#450A0A,#991B1B)' : 'linear-gradient(135deg,#92400E,#D97706)';
+        $nama = $vanisa ? 'Vanisa' : 'Dimas';
+    ?>
+    <div class="col-12 col-md-6">
+        <div class="gaji-card">
+            <div class="gaji-top" style="background:<?php echo $bg; ?>;">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="min-w-0">
+                        <div class="small opacity-75">Gaji owner</div>
+                        <div class="fw-bold" style="font-size:1.25rem;"><?php echo $nama; ?></div>
+                        <div class="small mt-1 opacity-75"><?php echo htmlspecialchars($labelBulanGaji($d['bulan'])); ?></div>
                     </div>
+                    <i class="bi bi-person-fill" style="font-size:1.5rem; opacity:0.8;"></i>
                 </div>
+                <div class="gaji-nominal mt-3">Rp <?php echo number_format($d['nominal'], 0, ',', '.'); ?></div>
             </div>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body">
-        <h5 class="mb-3">Riwayat Gaji Owner</h5>
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Owner</th>
-                        <th>Bulan</th>
-                        <th class="text-end">Nominal Gaji</th>
-                        <th>Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($data_riwayat)): ?>
-                    <tr><td colspan="4" class="text-center py-4 text-muted">Belum ada data gaji sama sekali.</td></tr>
-                    <?php else: ?>
-                    <?php foreach ($data_riwayat as $d): ?>
-                    <tr>
-                        <td class="fw-semibold"><?php echo htmlspecialchars(labelOwnerGaji($d['owner_key'])); ?></td>
-                        <td><?php echo htmlspecialchars(date('F Y', strtotime($d['bulan'] . '-01'))); ?></td>
-                        <td class="text-end text-danger fw-bold">Rp <?php echo number_format($d['nominal'], 0, ',', '.'); ?></td>
-                        <td class="text-muted small"><?php echo htmlspecialchars($d['keterangan'] ?? '-'); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <?php if (!empty($d['keterangan'])): ?>
+            <div class="px-3 pt-3 small text-muted">
+                <i class="bi bi-chat-dots"></i> <?php echo htmlspecialchars($d['keterangan']); ?>
+            </div>
+            <?php endif; ?>
+            <div class="p-3 d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-sm btn-warning"
+                    data-id="<?php echo (int) $d['id']; ?>"
+                    data-owner="<?php echo htmlspecialchars($d['owner_key'], ENT_QUOTES); ?>"
+                    data-bulan="<?php echo htmlspecialchars($d['bulan'], ENT_QUOTES); ?>"
+                    data-nominal="<?php echo (float) $d['nominal']; ?>"
+                    data-keterangan="<?php echo htmlspecialchars($d['keterangan'] ?? '', ENT_QUOTES); ?>"
+                    onclick="bukaModalGajiDariBtn(this)">
+                    <i class="bi bi-pencil"></i> Edit
+                </button>
+                <form method="POST" class="d-inline" onsubmit="return confirm('Hapus data gaji ini?')">
+                    <input type="hidden" name="action" value="hapus">
+                    <input type="hidden" name="id" value="<?php echo (int) $d['id']; ?>">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Hapus</button>
+                </form>
+            </div>
         </div>
     </div>
+    <?php endforeach; ?>
 </div>
+<?php endif; ?>
 
 <div class="modal fade" id="modalGaji" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -293,12 +298,12 @@ foreach ($stmt->fetchAll() as $row) $label_bulan_list[] = $row['bulan'];
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Bulan</label>
-                        <input type="month" class="form-control" name="bulan" id="gaji-bulan" value="<?php echo htmlspecialchars($bulan_terpilih); ?>" required>
+                        <input type="month" class="form-control" name="bulan" id="gaji-bulan" value="<?php echo htmlspecialchars($bulan_form); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nama Owner</label>
                         <select class="form-select" name="owner_key" id="gaji-owner" required>
-                            <option value="vanisa">vanisa</option>
+                            <option value="vanisa">Vanisa</option>
                             <option value="dimas">Dimas</option>
                         </select>
                     </div>
@@ -327,7 +332,7 @@ foreach ($stmt->fetchAll() as $row) $label_bulan_list[] = $row['bulan'];
 function bukaModalGaji(data = null) {
     const modal = new bootstrap.Modal(document.getElementById('modalGaji'));
     document.getElementById('gaji-id').value = data && data.id ? data.id : 0;
-    document.getElementById('gaji-bulan').value = data && data.bulan ? data.bulan : '<?php echo htmlspecialchars($bulan_terpilih, ENT_QUOTES); ?>';
+    document.getElementById('gaji-bulan').value = data && data.bulan ? data.bulan : '<?php echo htmlspecialchars($bulan_form, ENT_QUOTES); ?>';
     document.getElementById('gaji-owner').value = data && data.owner ? data.owner : 'vanisa';
     document.getElementById('gaji-nominal').value = data && data.nominal ? data.nominal : 0;
     document.getElementById('gaji-keterangan').value = data && data.keterangan ? data.keterangan : '';
@@ -338,7 +343,7 @@ function bukaModalGajiDariBtn(btn) {
     bukaModalGaji({
         id: btn.getAttribute('data-id') || 0,
         owner: btn.getAttribute('data-owner') || 'vanisa',
-        bulan: btn.getAttribute('data-bulan') || '<?php echo htmlspecialchars($bulan_terpilih, ENT_QUOTES); ?>',
+        bulan: btn.getAttribute('data-bulan') || '<?php echo htmlspecialchars($bulan_form, ENT_QUOTES); ?>',
         nominal: btn.getAttribute('data-nominal') || 0,
         keterangan: btn.getAttribute('data-keterangan') || ''
     });

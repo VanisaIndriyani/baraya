@@ -8,14 +8,37 @@ if (!headers_sent()) {
     header('ETag: "' . md5(uniqid(mt_rand(), true)) . '"');
 }
 
-require_once __DIR__ . '/../includes/header.php';
+// ===== BOOTSTRAP MINIMAL (SEBELUM OUTPUT HTML) =====
+// Session start
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
+// Tentukan base URL otomatis
+$base_url = dirname($_SERVER['PHP_SELF']);
+while (strpos($base_url, '/pages') !== false || strpos($base_url, '/includes') !== false || strpos($base_url, '/controllers') !== false) {
+    $base_url = dirname($base_url);
+}
+if ($base_url == '\\' || $base_url == '/') $base_url = '';
+
+// Cek login (semua halaman dan handler AJAX harus login)
+$current_page = basename($_SERVER['PHP_SELF']);
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ' . $base_url . '/login.php');
+    exit;
+}
+
+// Koneksi database (require_once agar aman di-include ulang oleh header.php)
+require_once __DIR__ . '/../config/database.php';
+
+// Konstanta toko
 define('TOKO_NAMA', 'Es Teller & Dawet Baraya');
 define('TOKO_ALAMAT_SINGKAT', 'Jl. Kakatua No.103, Condongcatur, Sleman, DIY 55281');
 define('TOKO_WA', '+62 831-8930-2691');
 
 $GLOBALS['alert_script'] = '';
 
+// ===== FUNGSI REPAIR TABEL =====
 function transKasirAddColIfMissing($pdo, $tabel, $field, $def) {
     try {
         $stmt = $pdo->query("SHOW COLUMNS FROM `{$tabel}` LIKE '{$field}'");
@@ -84,7 +107,6 @@ function transKasirRepairTable($pdo) {
             try { $pdo->exec("ALTER TABLE kasir_transaksi_item ADD KEY idx_id_transaksi (id_transaksi)"); } catch (PDOException $e) {}
         }
 
-        // ===== REPAIR TABEL kasir_produk TERMASUK KOLOM kategori =====
         try {
             $stmtP = $pdo->query("SHOW TABLES LIKE 'kasir_produk'");
             $produkAda = $stmtP->rowCount() > 0;
@@ -143,9 +165,15 @@ function tanggalStrukIndo($d) {
     return date('d-m-Y H:i:s', $d);
 }
 
-// ===== HANDLER: CETAK RESI THERMAL 58mm KERTAS KECIL (dari DB) - WARNA MAROON EMAS PREMIUM =====
+// ===== VARIABEL AKSI & ID (UNTUK SEMUA HANDLER) =====
 $aksiGet = $_GET['aksi'] ?? '';
 $idGet = (int)($_GET['id'] ?? 0);
+
+// ============================================================
+// ===== SEMUA HANDLER YANG EXIT (AJAX / CETAK) DISINI =====
+// ============================================================
+// Harus SEBELUM require_once header.php agar HTML tidak nyampur ke response JSON/Cetak
+// ============================================================
 
 if ($aksiGet === 'cetak_resi' && $idGet > 0) {
     $stmt = $pdo->prepare("SELECT * FROM kasir_transaksi WHERE id = ? LIMIT 1");
@@ -803,6 +831,11 @@ if ($aksiGet === 'detail_json' && $idGet > 0) {
     echo json_encode($out);
     exit;
 }
+
+// ============================================================
+// ===== SELESAI SEMUA HANDLER EXIT - MULAI OUTPUT HTML =====
+// ============================================================
+require_once __DIR__ . '/../includes/header.php';
 
 // ===== FILTER DEFAULT HALAMAN LIST =====
 $tglDefault = date('Y-m-d');

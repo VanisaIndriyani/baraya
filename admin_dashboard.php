@@ -23,6 +23,13 @@ function dashboardFetchAll($pdo, $sql, $params = [])
 
 financeEnsureAccountSystem($pdo);
 financeEnsureBiayaWajibTable($pdo);
+require_once 'includes/stok-utils.php';
+
+try {
+    $stok_operasional = stokAmbilDaftar($pdo, $today);
+} catch (Throwable $e) {
+    $stok_operasional = [];
+}
 
 $float_kasir = $pdo->query("SELECT * FROM float_kasir ORDER BY id DESC LIMIT 1")->fetch();
 $pendapatan_hari_ini = (float) dashboardFetchValue(
@@ -151,7 +158,7 @@ $estimasi_sisa_bulan = $pendapatan_bulan_ini - (float) ($ringkasan_biaya_bulanan
 $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pembelian_bulan_ini + $beli_harian_bulan_ini);
 ?>
 
-<div class="page-header" style="border-top:3px solid transparent; border-image: linear-gradient(90deg,#FBBF24,#991B1B,#FBBF24) 1;">
+<div class="page-header dash-head" style="border-top:3px solid transparent; border-image: linear-gradient(90deg,#FBBF24,#991B1B,#FBBF24) 1;">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
             <h4 class="mb-1 fw-bold" style="letter-spacing:-0.3px;">
@@ -181,7 +188,7 @@ $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pemb
                         echo number_format($saldo_ops, 0, ',', '.');
                     ?></h3>
                 </div>
-                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:rgba(120,53,15,0.15); border: 1px solid rgba(120,53,15,0.2);">
+                <div class="dash-ikon rounded-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:rgba(120,53,15,0.15); border: 1px solid rgba(120,53,15,0.2);">
                     <i class="bi bi-wallet2" style="font-size: 1.6rem; color:#78350F;"></i>
                 </div>
             </div>
@@ -195,7 +202,7 @@ $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pemb
                         <i class="bi bi-graph-up-arrow me-1.5"></i>Hasil Penjualan Bulan Ini
                     </div>
                 </div>
-                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:rgba(120,53,15,0.18); border: 1px solid rgba(120,53,15,0.22);">
+                <div class="dash-ikon rounded-3 d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:rgba(120,53,15,0.18); border: 1px solid rgba(120,53,15,0.22);">
                     <i class="bi bi-cash-stack" style="font-size: 1.4rem; color:#78350F;"></i>
                 </div>
             </div>
@@ -224,7 +231,7 @@ $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pemb
                     </div>
                     <h3 class="mb-0 fw-black lh-1" style="color:white; text-shadow: 0 1px 3px rgba(0,0,0,0.25); letter-spacing:-0.3px;">Rp <?php echo number_format($total_sisa_hutang, 0, ',', '.'); ?></h3>
                 </div>
-                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3);">
+                <div class="dash-ikon rounded-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3);">
                     <i class="bi bi-person-exclamation" style="font-size: 1.5rem; color:#FDE68A;"></i>
                 </div>
             </div>
@@ -430,6 +437,42 @@ $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pemb
     </div>
 </div>
 
+<div class="card border-0 shadow-sm rounded-4 mb-4" style="border-top:3px solid #991B1B;">
+    <div class="card-body p-3 p-md-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+            <div>
+                <h5 class="mb-1 fw-bold">
+                    <i class="bi bi-box-seam-fill me-2" style="color:#991B1B;"></i>Sisa Stok
+                </h5>
+                <small class="text-muted">Stok pertama dikurangi pemakaian closing.</small>
+            </div>
+            <a href="<?php echo $base_url; ?>/pages/stok.php" class="btn btn-sm rounded-pill fw-semibold px-3 text-white" style="background:linear-gradient(135deg,#450A0A,#991B1B);">
+                <i class="bi bi-pencil-square me-1"></i>Input closing
+            </a>
+        </div>
+        <?php if (empty($stok_operasional)): ?>
+            <div class="rounded-4 p-3 text-muted" style="background:#F8FAFC;">Belum ada stok. Tambah dulu, misalnya Cup 22 oz stok pertama 500 pcs.</div>
+        <?php else: ?>
+            <div class="row g-2">
+                <?php foreach ($stok_operasional as $stok):
+                    $status_stok = stokStatus($stok);
+                ?>
+                <div class="col-6 col-md-4 col-xl-3">
+                    <a href="<?php echo $base_url; ?>/pages/stok.php" class="text-decoration-none d-block h-100 rounded-4 p-3" style="background:<?php echo $status_stok['latar']; ?>; color:<?php echo $status_stok['warna']; ?>;">
+                        <div class="small fw-semibold text-truncate"><?php echo htmlspecialchars($stok['nama']); ?></div>
+                        <div class="fw-bold mt-1" style="font-size:clamp(1.15rem, 3.5vw, 1.45rem); letter-spacing:-0.4px; overflow-wrap:anywhere;">
+                            <?php echo stokFormatJumlah($stok['sisa']); ?>
+                            <span class="fw-semibold" style="font-size:0.75rem;"><?php echo htmlspecialchars($stok['satuan']); ?></span>
+                        </div>
+                        <div class="small mt-1">Hari ini −<?php echo stokFormatJumlah($stok['pakai_tanggal']); ?></div>
+                    </a>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 <?php if (count($stok_hampir_habis) > 0): ?>
 <div class="card border-0 shadow-sm rounded-4 mb-4 transition-card" style="border-left:4px solid #F59E0B;">
     <div class="card-body p-4">
@@ -451,8 +494,8 @@ $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pemb
 </div>
 <?php endif; ?>
 
-<!-- Quick Action Button -->
-<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 999;">
+<!-- Quick Action Button, disembunyikan di HP -->
+<div class="dash-fab position-fixed bottom-0 end-0 p-4 d-none d-md-block" style="z-index: 999;">
     <button class="btn rounded-circle shadow-lg transition-card" style="width: 64px; height: 64px; font-size: 28px; background: linear-gradient(135deg,#450A0A,#991B1B); color: #FDE68A; border: 2px solid #FBBF24; box-shadow: 0 12px 28px rgba(153,27,27,0.35), 0 0 0 4px rgba(251,191,36,0.12);" data-bs-toggle="modal" data-bs-target="#menuModal">
         <i class="bi bi-plus-lg"></i>
     </button>
@@ -625,6 +668,9 @@ $bersih_real_bulan_ini = $pendapatan_bulan_ini - ($pengeluaran_bulan_ini + $pemb
                     </a>
                     <a href="<?php echo $base_url; ?>/pages/pembelian.php" class="btn btn-lg rounded-4 fw-bold py-3 px-4 text-white" style="background: linear-gradient(135deg,#7C2D12,#EA580C); box-shadow: 0 8px 20px rgba(234,88,12,0.25); border:0;">
                         <i class="bi bi-bag-plus-fill me-2 fs-5"></i> Input Beli Bahan (Stok)
+                    </a>
+                    <a href="<?php echo $base_url; ?>/pages/stok.php" class="btn btn-lg rounded-4 fw-bold py-3 px-4 text-white" style="background: linear-gradient(135deg,#450A0A,#991B1B); box-shadow: 0 8px 20px rgba(153,27,27,0.25); border:0;">
+                        <i class="bi bi-box-seam-fill me-2 fs-5"></i> Stok &amp; Closing
                     </a>
                 </div>
             </div>

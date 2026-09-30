@@ -9,6 +9,10 @@ if (($_GET['action'] ?? '') === 'export_excel') {
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $tanggal_awal = isset($_GET['tanggal_awal']) ? trim($_GET['tanggal_awal']) : '';
     $tanggal_akhir = isset($_GET['tanggal_akhir']) ? trim($_GET['tanggal_akhir']) : '';
+    if ($tanggal_awal === '' && $tanggal_akhir === '') {
+        $tanggal_awal = date('Y-m-01');
+        $tanggal_akhir = date('Y-m-t');
+    }
 
     $where_clauses = [];
     $params = [];
@@ -312,6 +316,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $tanggal_awal = isset($_GET['tanggal_awal']) ? trim($_GET['tanggal_awal']) : '';
 $tanggal_akhir = isset($_GET['tanggal_akhir']) ? trim($_GET['tanggal_akhir']) : '';
+$filter_bulan_otomatis = false;
+if ($tanggal_awal === '' && $tanggal_akhir === '') {
+    $tanggal_awal = date('Y-m-01');
+    $tanggal_akhir = date('Y-m-t');
+    $filter_bulan_otomatis = true;
+}
+$nama_bulan = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+$label_bulan_penjualan = $nama_bulan[(int) date('n', strtotime($tanggal_awal))] . ' ' . date('Y', strtotime($tanggal_awal));
 
 $where_clauses = [];
 $params = [];
@@ -350,150 +362,152 @@ $penjualan = $stmt->fetchAll();
 $ringkasan_biaya_harian = financeGetBiayaWajibSummary($pdo, date('Y-m-d'));
 ?>
 
-<div class="page-header">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 w-100">
+<style>
+.jual-hero {
+    background: linear-gradient(135deg, #450A0A 0%, #7F1D1D 55%, #991B1B 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 16px 36px rgba(127, 29, 29, 0.22);
+    position: relative;
+    overflow: hidden;
+}
+.jual-hero::after {
+    content: "";
+    position: absolute;
+    right: -36px;
+    top: -46px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(251, 191, 36, 0.16);
+}
+.jual-stat {
+    border-radius: 18px;
+    padding: 16px;
+    height: 100%;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+.jual-stat .angka {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.15rem, 3.2vw, 1.55rem);
+    letter-spacing: -0.4px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.jual-item {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    padding: 14px;
+}
+.jual-aksi .btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+@media (max-width: 576px) {
+    .jual-hero { padding: 16px; border-radius: 18px; }
+}
+</style>
+
+<div class="jual-hero mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 position-relative" style="z-index:1;">
         <div>
-            <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none mb-2 d-inline-block opacity-75"><i class="bi bi-arrow-left"></i> Kembali</a>
-            <h4 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Penjualan</h4>
+            <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none d-inline-flex align-items-center gap-1 mb-2 opacity-75">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+            <h4 class="mb-1 fw-bold">Penjualan</h4>
+            <div class="small" style="color:#FDE68A;">Catatan <?php echo htmlspecialchars($label_bulan_penjualan); ?>. Bulan baru, daftar ini mulai kosong. Data lama ada di laporan.</div>
         </div>
-        <button class="btn btn-light text-emerald"
-            data-bs-toggle="modal"
-            data-bs-target="#tambahModal">
-            <i class="bi bi-plus-lg me-2"></i>Tambah Penjualan
-        </button>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+            <a href="<?php echo $base_url; ?>/pages/laporan.php" class="btn rounded-pill fw-semibold" style="background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(251,191,36,0.45);">
+                <i class="bi bi-journal-text me-1"></i>Laporan
+            </a>
+            <button class="btn rounded-pill fw-semibold px-4" style="background:#FBBF24; color:#450A0A;" data-bs-toggle="modal" data-bs-target="#tambahModal">
+                <i class="bi bi-plus-lg me-1"></i>Tambah Penjualan
+            </button>
+        </div>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-4 col-xl">
-        <div class="stat-card" style="background: linear-gradient(135deg,#D1FAE5 0%,#A7F3D0 100%); color: #065F46;">
-            <div class="d-flex justify-content-between align-items-start">
+<?php
+$rata_penjualan = ($ringkasan_penjualan['total_data'] ?? 0) > 0
+    ? ($ringkasan_penjualan['total_nominal'] / $ringkasan_penjualan['total_data'])
+    : 0;
+?>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="jual-stat" style="background:linear-gradient(135deg,#D1FAE5,#A7F3D0); color:#065F46;">
+            <div class="small fw-semibold mb-1"><i class="bi bi-wallet2 me-1"></i>Total bulan ini</div>
+            <div class="angka">Rp <?php echo number_format($ringkasan_penjualan['total_nominal'] ?? 0, 0, ',', '.'); ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="jual-stat" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#78350F;">
+            <div class="small fw-semibold mb-1"><i class="bi bi-receipt me-1"></i>Jumlah catatan</div>
+            <div class="angka"><?php echo number_format($ringkasan_penjualan['total_data'] ?? 0, 0, ',', '.'); ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="jual-stat" style="background:#fff; color:#450A0A; border:1px solid rgba(153,27,27,0.08);">
+            <div class="small fw-semibold mb-1"><i class="bi bi-bar-chart-fill me-1"></i>Rata-rata</div>
+            <div class="angka">Rp <?php echo number_format($rata_penjualan, 0, ',', '.'); ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="jual-stat" style="background:linear-gradient(135deg,#450A0A,#991B1B); color:#fff;">
+            <div class="d-flex justify-content-between align-items-start gap-2">
                 <div>
-                    <div class="stat-label">Total Pemasukan</div>
-                    <h3 class="stat-value">Rp <?php echo number_format($ringkasan_penjualan['total_nominal'] ?? 0, 0, ',', '.'); ?></h3>
+                    <div class="small fw-semibold mb-1" style="color:#FDE68A;"><i class="bi bi-safe-fill me-1"></i>Target kas hari ini</div>
+                    <div class="angka">Rp <?php echo number_format($ringkasan_biaya_harian['target_harian'] ?? 0, 0, ',', '.'); ?></div>
+                    <div class="small mt-1 opacity-75">Sisa Rp <?php echo number_format($ringkasan_biaya_harian['sisa_target_hari_ini'] ?? 0, 0, ',', '.'); ?></div>
                 </div>
-                <i class="bi bi-wallet2 stat-icon" style="color:#065F46"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-xl">
-        <div class="stat-card" style="background: linear-gradient(135deg,#DBEAFE 0%,#BFDBFE 100%); color: #1E40AF;">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="stat-label">Jumlah Transaksi</div>
-                    <h3 class="stat-value"><?php echo number_format($ringkasan_penjualan['total_data'] ?? 0, 0, ',', '.'); ?></h3>
-                    <small class="opacity-75">transaksi penjualan</small>
-                </div>
-                <i class="bi bi-receipt-cutoff stat-icon" style="color:#1E40AF"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 col-xl">
-        <div class="stat-card" style="background: linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%); color: #92400E;">
-            <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                    <div class="stat-label">Target Kas Wajib Hari Ini</div>
-                    <h3 class="stat-value">Rp <?php echo number_format($ringkasan_biaya_harian['target_harian'] ?? 0, 0, ',', '.'); ?></h3>
-                    <small class="opacity-75 d-block">Teralokasi: Rp <?php echo number_format($ringkasan_biaya_harian['teralokasi_hari_ini'] ?? 0, 0, ',', '.'); ?></small>
-                    <small class="opacity-75 d-block">Sisa: Rp <?php echo number_format($ringkasan_biaya_harian['sisa_target_hari_ini'] ?? 0, 0, ',', '.'); ?></small>
-                </div>
-                <a href="<?php echo $base_url; ?>/pages/biaya-wajib.php" class="btn btn-sm btn-light" style="color:#92400E;">
-                    Kelola
-                </a>
-            </div>
-        </div>
-    </div>
-    <?php if ($ringkasan_penjualan['total_data'] > 0): ?>
-    <div class="col-md-4 col-xl">
-        <div class="stat-card gold">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="stat-label">Rata-rata / Transaksi</div>
-                    <h3 class="stat-value">Rp <?php
-                        $avg = $ringkasan_penjualan['total_data'] > 0 ? ($ringkasan_penjualan['total_nominal'] / $ringkasan_penjualan['total_data']) : 0;
-                        echo number_format($avg, 0, ',', '.');
-                    ?></h3>
-                </div>
-                <i class="bi bi-bar-chart-fill stat-icon"></i>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
 </div>
 
-<!-- Filter & Search Card -->
 <div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-body p-4">
+    <div class="card-body">
         <form method="GET" id="filterForm">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-5 col-lg-4">
-                    <label class="form-label small fw-semibold text-muted mb-1">
-                        <i class="bi bi-search me-1"></i>Cari Penjualan
-                    </label>
-                    <input type="text" class="form-control form-control-lg" name="search" placeholder="Cari catatan, nominal..." value="<?php echo htmlspecialchars($search); ?>">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-lg-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Cari catatan</label>
+                    <input type="text" class="form-control" name="search" placeholder="Catatan atau nominal" value="<?php echo htmlspecialchars($search); ?>">
                 </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted mb-1">
-                        <i class="bi bi-calendar3 me-1"></i>Tanggal Awal
-                    </label>
-                    <input type="date" class="form-control form-control-lg" name="tanggal_awal" value="<?php echo htmlspecialchars($tanggal_awal); ?>">
+                <div class="col-6 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">Dari</label>
+                    <input type="date" class="form-control" name="tanggal_awal" value="<?php echo htmlspecialchars($tanggal_awal); ?>">
                 </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted mb-1">
-                        <i class="bi bi-calendar3 me-1"></i>Tanggal Akhir
-                    </label>
-                    <input type="date" class="form-control form-control-lg" name="tanggal_akhir" value="<?php echo htmlspecialchars($tanggal_akhir); ?>">
+                <div class="col-6 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">Sampai</label>
+                    <input type="date" class="form-control" name="tanggal_akhir" value="<?php echo htmlspecialchars($tanggal_akhir); ?>">
                 </div>
-                <div class="col-md-12 col-lg-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-emerald btn-lg w-100">
-                        <i class="bi bi-funnel me-2"></i>Terapkan
+                <div class="col-12 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn text-white w-100" style="background:#991B1B;">
+                        <i class="bi bi-funnel me-1"></i>Lihat
                     </button>
-                    <?php if ($search !== '' || $tanggal_awal !== '' || $tanggal_akhir !== ''): ?>
-                    <a href="penjualan.php" class="btn btn-outline-secondary btn-lg">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
+                    <?php if ($search !== '' || !$filter_bulan_otomatis): ?>
+                    <a href="penjualan.php" class="btn btn-outline-secondary" aria-label="Reset filter"><i class="bi bi-x-lg"></i></a>
                     <?php endif; ?>
                 </div>
             </div>
         </form>
-        <?php if ($search !== '' || $tanggal_awal !== '' || $tanggal_akhir !== ''): ?>
-        <div class="mt-3 pt-3 border-top">
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <span class="small text-muted">Filter aktif:</span>
-                <?php if ($search !== ''): ?>
-                    <span class="badge rounded-pill bg-primary px-3 py-2">
-                        <i class="bi bi-search me-1"></i><?php echo htmlspecialchars($search); ?>
-                    </span>
-                <?php endif; ?>
-                <?php if ($tanggal_awal !== '' || $tanggal_akhir !== ''): ?>
-                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
-                        <i class="bi bi-calendar-range me-1"></i>
-                        <?php echo $tanggal_awal ? date('d/m/Y', strtotime($tanggal_awal)) : 'Semua'; ?>
-                        <span class="mx-1">—</span>
-                        <?php echo $tanggal_akhir ? date('d/m/Y', strtotime($tanggal_akhir)) : 'Semua'; ?>
-                    </span>
-                <?php endif; ?>
-                <span class="badge rounded-pill bg-success px-3 py-2 ms-auto">
-                    <?php echo number_format($ringkasan_penjualan['total_data'] ?? 0); ?> data
-                    <span class="mx-1">•</span>
-                    Rp <?php echo number_format($ringkasan_penjualan['total_nominal'] ?? 0, 0, ',', '.'); ?>
-                </span>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-    <div class="card-header bg-white border-0 px-4 py-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
-        <div>
-            <h6 class="fw-bold mb-0 text-emerald">
-                <i class="bi bi-clock-history me-2"></i>Riwayat Penjualan
-            </h6>
-            <small class="text-muted">
-                <?php echo number_format($ringkasan_penjualan['total_data'] ?? 0); ?> data • Total Rp <?php echo number_format($ringkasan_penjualan['total_nominal'] ?? 0, 0, ',', '.'); ?>
-            </small>
-        </div>
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+    <div>
+        <h5 class="mb-0 fw-bold">Riwayat <?php echo htmlspecialchars($label_bulan_penjualan); ?></h5>
+        <small class="text-muted"><?php echo number_format($ringkasan_penjualan['total_data'] ?? 0); ?> catatan</small>
+    </div>
         <?php if (!empty($penjualan)): ?>
         <form method="GET" class="d-inline-flex gap-2">
             <input type="hidden" name="action" value="export_excel">
@@ -514,32 +528,20 @@ $ringkasan_biaya_harian = financeGetBiayaWajibSummary($pdo, date('Y-m-d'));
     </div>
 
     <?php if (empty($penjualan)): ?>
-    <div class="card-body text-center py-5">
-        <i class="bi bi-inbox fs-1 opacity-25 d-block mb-3 text-muted"></i>
-        <h5 class="text-muted mb-1">Belum ada data penjualan</h5>
-        <p class="text-muted small mb-3">Silakan klik tombol Tambah Penjualan di atas.</p>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahModal">
-            <i class="bi bi-plus-lg me-2"></i>Tambah Penjualan
-        </button>
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body text-center py-5">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:72px;height:72px;background:#FEF3C7;color:#92400E;">
+                <i class="bi bi-inbox" style="font-size:1.7rem;"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Belum ada penjualan bulan ini</h5>
+            <p class="text-muted small mb-3">Data bulan lalu tetap ada di laporan.</p>
+            <button class="btn rounded-pill text-white px-4" style="background:#991B1B;" data-bs-toggle="modal" data-bs-target="#tambahModal">
+                <i class="bi bi-plus-lg me-1"></i>Tambah Penjualan
+            </button>
+        </div>
     </div>
     <?php else: ?>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" style="min-width: 880px; table-layout: fixed;">
-            <colgroup>
-                <col style="width: 24%;">
-                <col style="width: 40%;">
-                <col style="width: 18%;">
-                <col style="width: 18%;">
-            </colgroup>
-            <thead>
-                <tr style="background: linear-gradient(135deg,#D1FAE5 0%,#A7F3D0 100%);">
-                    <th class="px-4 py-3 fw-semibold text-emerald border-0 text-start" style="border-top-left-radius: 12px;">Tanggal</th>
-                    <th class="px-3 py-3 fw-semibold text-emerald border-0 text-start">Alokasi</th>
-                    <th class="px-3 py-3 fw-semibold text-emerald border-0 text-end">Total</th>
-                    <th class="px-4 py-3 fw-semibold text-emerald border-0 text-center" style="border-top-right-radius: 12px;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="border-top-0">
+    <div class="d-grid gap-3 mb-4">
 
 <?php foreach ($penjualan as $p): ?>
 <?php
@@ -554,131 +556,103 @@ $stmt->execute([$p['id']]);
 $alokasi_penjualan = $stmt->fetchAll();
 ?>
 
-                <tr class="border-bottom border-light-subtle cursor-pointer transition-card" data-bs-toggle="modal" data-bs-target="#detailPenjualanModal<?php echo $p['id']; ?>" style="height: 70px;">
-                    <td class="px-4 py-3 align-middle text-start">
-                        <div class="d-flex flex-column gap-1">
-                            <span class="badge rounded-pill bg-light text-emerald border border-success-subtle px-3 py-1.5 align-self-start" style="font-size: 0.8rem;">
-                                <i class="bi bi-calendar-event me-1"></i>
-                                <?php echo date('d M Y', strtotime($p['tanggal'])); ?>
-                            </span>
-                            <span class="small text-muted ms-1" style="font-size: 0.75rem;">#PNJ-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></span>
-                        </div>
-                    </td>
-                    <td class="px-3 py-3 align-middle text-start">
-                        <?php if (!empty($alokasi_penjualan)): ?>
-                        <div class="d-flex flex-wrap gap-1.5">
-                            <?php foreach (array_slice($alokasi_penjualan, 0, 3) as $alokasi): ?>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-2.5 py-1" style="font-size: 0.78rem; line-height: 1.45;">
-                                <i class="bi bi-bank me-1"></i>
-                                <?php echo htmlspecialchars($alokasi['nama_rekening']); ?>
-                            </span>
-                            <?php endforeach; ?>
-                            <?php if (count($alokasi_penjualan) > 3): ?>
-                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis px-2.5 py-1" style="font-size: 0.78rem; line-height: 1.45;">
-                                +<?php echo count($alokasi_penjualan) - 3; ?> rekening
-                            </span>
-                            <?php endif; ?>
-                        </div>
-                        <?php else: ?>
-                        <span class="small text-muted opacity-50">-</span>
-                        <?php endif; ?>
-                    </td>
-                    <td class="px-3 py-3 align-middle text-end">
-                        <h6 class="fw-bold text-success mb-0 text-success-emphasis" style="font-size: 1.05rem; letter-spacing: -0.2px;">
-                            Rp <?php echo number_format($p['total_pendapatan'], 0, ',', '.'); ?>
-                        </h6>
-                    </td>
-                    <td class="px-4 py-3 align-middle text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <button class="action-btn edit" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $p['id']; ?>" onclick="event.stopPropagation();" title="Edit">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="action-btn delete" onclick="event.stopPropagation(); hapusPenjualan(<?php echo $p['id']; ?>);" title="Hapus">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-
-    <!-- Modal Detail Penjualan -->
-    <div class="modal fade" id="detailPenjualanModal<?php echo $p['id']; ?>" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content rounded-4 border-0">
-                <div class="modal-header border-0 pb-0">
-                    <div>
-                        <h5 class="modal-title fw-bold">
-                            <i class="bi bi-receipt me-2 text-success"></i>Detail Penjualan
-                        </h5>
-                        <small class="text-muted">
-                            <i class="bi bi-calendar3 me-1"></i><?php echo date('d F Y', strtotime($p['tanggal'])); ?>
-                        </small>
+        <div class="jual-item">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+                <button type="button" class="btn p-0 text-start border-0 bg-transparent flex-grow-1 min-w-0" data-bs-toggle="modal" data-bs-target="#detailPenjualanModal<?php echo $p['id']; ?>">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                        <span class="badge rounded-pill" style="background:#D1FAE5; color:#065F46;">
+                            <i class="bi bi-calendar-event me-1"></i><?php echo date('d M Y', strtotime($p['tanggal'])); ?>
+                        </span>
+                        <span class="small text-muted">#PNJ-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></span>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div class="fw-bold" style="color:#065F46; font-size:1.15rem;">Rp <?php echo number_format($p['total_pendapatan'], 0, ',', '.'); ?></div>
+                    <div class="small text-muted"><?php echo htmlspecialchars($p['catatan'] ?: 'Tanpa catatan'); ?></div>
+                    <?php if (!empty($alokasi_penjualan)): ?>
+                    <div class="d-flex flex-wrap gap-1 mt-2">
+                        <?php foreach ($alokasi_penjualan as $alokasi): ?>
+                        <span class="badge rounded-pill" style="background:#FEF3C7; color:#78350F;">
+                            <?php echo htmlspecialchars($alokasi['nama_rekening']); ?> · Rp <?php echo number_format($alokasi['jumlah'], 0, ',', '.'); ?>
+                        </span>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </button>
+                <div class="jual-aksi d-flex gap-2 flex-shrink-0">
+                    <button class="btn" style="background:#FEF3C7; color:#92400E;" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $p['id']; ?>" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn" style="background:#FEE2E2; color:#991B1B;" onclick="hapusPenjualan(<?php echo $p['id']; ?>);" title="Hapus">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="p-4 rounded-4 bg-success bg-opacity-10 border border-success-subtle h-100">
-                                <div class="small text-success-emphasis mb-2">Total Pendapatan</div>
-                                <h3 class="fw-bold mb-0 text-success">Rp <?php echo number_format($p['total_pendapatan'], 0, ',', '.'); ?></h3>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-4 rounded-4 bg-light h-100">
-                                <div class="small text-muted mb-2">Tanggal Transaksi</div>
-                                <h5 class="fw-bold mb-0"><?php echo date('l, d F Y', strtotime($p['tanggal'])); ?></h5>
-                                <small class="text-muted d-block mt-1">ID: #PNJ-<?php echo str_pad($p['id'], 5, '0', STR_PAD_LEFT); ?></small>
-                            </div>
-                        </div>
+            </div>
+        </div>
+
+    <?php
+        $waktu_jual = strtotime($p['tanggal']);
+        $hari_id = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][(int) date('w', $waktu_jual)];
+        $tgl_detail = $hari_id . ', ' . date('j', $waktu_jual) . ' ' . $nama_bulan[(int) date('n', $waktu_jual)] . ' ' . date('Y', $waktu_jual);
+        $kode_jual = '#PNJ-' . str_pad($p['id'], 5, '0', STR_PAD_LEFT);
+    ?>
+    <div class="modal fade jual-detail" id="detailPenjualanModal<?php echo $p['id']; ?>" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title mb-0">Detail Penjualan</h5>
+                        <div class="small" style="color:#FDE68A;"><?php echo htmlspecialchars($tgl_detail); ?> · <?php echo $kode_jual; ?></div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="jual-detail-total">
+                        <div class="small" style="color:#047857;">Total pendapatan</div>
+                        <div class="jual-detail-angka">Rp <?php echo number_format($p['total_pendapatan'], 0, ',', '.'); ?></div>
                     </div>
                     <?php if ($p['catatan']): ?>
-                    <div class="mt-4">
-                        <label class="small fw-semibold text-muted d-block mb-2">
-                            <i class="bi bi-journal-text me-1"></i>Catatan
-                        </label>
-                        <div class="p-4 rounded-4 border border-light bg-white">
-                            <p class="mb-0"><?php echo nl2br(htmlspecialchars($p['catatan'])); ?></p>
-                        </div>
+                    <div class="jual-detail-catatan">
+                        <div class="small text-muted mb-1">Catatan</div>
+                        <div><?php echo nl2br(htmlspecialchars($p['catatan'])); ?></div>
                     </div>
                     <?php endif; ?>
                     <?php if (!empty($alokasi_penjualan)): ?>
-                    <div class="mt-4">
-                        <label class="small fw-semibold text-muted d-block mb-3">
-                            <i class="bi bi-split me-1"></i>Pembagian Otomatis
-                        </label>
-                        <div class="row g-3">
-                            <?php foreach ($alokasi_penjualan as $alokasi): ?>
-                            <div class="col-md-6">
-                                <div class="p-4 rounded-4 border border-primary-subtle bg-primary bg-opacity-5">
-                                    <div class="small text-muted mb-1"><?php echo htmlspecialchars($alokasi['nama_rekening']); ?></div>
-                                    <h5 class="fw-bold mb-0 text-primary-emphasis">Rp <?php echo number_format($alokasi['jumlah'], 0, ',', '.'); ?></h5>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
+                    <div class="small text-muted mt-3 mb-2">Pembagian otomatis</div>
+                    <div class="d-flex flex-column gap-2">
+                        <?php foreach ($alokasi_penjualan as $alokasi):
+                            $nama_alokasi = strtolower($alokasi['nama_rekening']);
+                            if (str_contains($nama_alokasi, 'ruko')) {
+                                $warna_bagi = '#991B1B';
+                                $latar_bagi = '#FEF2F2';
+                            } elseif (str_contains($nama_alokasi, 'operasional') || str_contains($nama_alokasi, 'kas')) {
+                                $warna_bagi = '#92400E';
+                                $latar_bagi = '#FFFBEB';
+                            } else {
+                                $warna_bagi = '#065F46';
+                                $latar_bagi = '#ECFDF5';
+                            }
+                        ?>
+                        <div class="jual-bagi" style="background:<?php echo $latar_bagi; ?>; color:<?php echo $warna_bagi; ?>;">
+                            <span><?php echo htmlspecialchars($alokasi['nama_rekening']); ?></span>
+                            <strong>Rp <?php echo number_format($alokasi['jumlah'], 0, ',', '.'); ?></strong>
                         </div>
+                        <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
                     <?php if ($p['foto']): ?>
-                    <div class="mt-4">
-                        <label class="small fw-semibold text-muted d-block mb-2">
-                            <i class="bi bi-image me-1"></i>Bukti Foto
-                        </label>
-                        <div class="rounded-4 overflow-hidden border border-light bg-light p-2">
-                            <img src="<?php echo $base_url; ?>/uploads/bukti/<?php echo $p['foto']; ?>" class="img-fluid rounded-3 d-block mx-auto" alt="Bukti Penjualan" style="max-height:400px;object-fit:contain;">
-                        </div>
+                    <div class="mt-3">
+                        <div class="small text-muted mb-2">Bukti foto</div>
+                        <img src="<?php echo $base_url; ?>/uploads/bukti/<?php echo $p['foto']; ?>" class="img-fluid rounded-3 d-block" alt="Bukti penjualan" style="max-height:280px; object-fit:contain; background:#F8FAFC;">
                     </div>
                     <?php endif; ?>
                 </div>
-                <div class="modal-footer border-0 pt-0 flex-wrap gap-2">
-                    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $p['id']; ?>" data-bs-dismiss="modal">
-                        <i class="bi bi-pencil-square me-2"></i>Edit
+                <div class="modal-footer jual-detail-aksi">
+                    <button type="button" class="btn jual-btn-edit" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $p['id']; ?>" data-bs-dismiss="modal">
+                        <i class="bi bi-pencil"></i> Edit
                     </button>
-                    <button class="btn btn-outline-danger" onclick="$('#detailPenjualanModal<?php echo $p['id']; ?>').modal('hide'); setTimeout(()=>hapusPenjualan(<?php echo $p['id']; ?>),200);">
-                        <i class="bi bi-trash me-2"></i>Hapus
+                    <button type="button" class="btn jual-btn-hapus" onclick="document.getElementById('detailPenjualanModal<?php echo $p['id']; ?>') && bootstrap.Modal.getOrCreateInstance(document.getElementById('detailPenjualanModal<?php echo $p['id']; ?>')).hide(); setTimeout(()=>hapusPenjualan(<?php echo $p['id']; ?>),200);">
+                        <i class="bi bi-trash"></i> Hapus
                     </button>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-lg me-2"></i>Tutup
-                    </button>
+                    <button type="button" class="btn jual-btn-tutup" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -752,22 +726,8 @@ $alokasi_penjualan = $stmt->fetchAll();
    
 <?php endforeach; ?>
 
-            </tbody>
-            <tfoot>
-                <tr style="background: linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%);">
-                    <td colspan="2" class="px-4 py-3 fw-bold text-end">
-                        <span class="text-warning-emphasis" style="font-size: 1rem;">TOTAL (<?php echo number_format($ringkasan_penjualan['total_data'] ?? 0); ?> transaksi)</span>
-                    </td>
-                    <td class="px-3 py-3 fw-bold text-end">
-                        <h5 class="mb-0 text-warning-emphasis">Rp <?php echo number_format($ringkasan_penjualan['total_nominal'] ?? 0, 0, ',', '.'); ?></h5>
-                    </td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
     </div>
     <?php endif; ?>
-</div>
 
 <div class="modal fade" id="tambahModal">
     <div class="modal-dialog modal-lg">
@@ -888,6 +848,56 @@ $alokasi_penjualan = $stmt->fetchAll();
 .action-btn.delete:hover {
     background: #FECACA;
 }
+.jual-detail .modal-dialog { max-width: 460px; }
+.jual-detail .modal-content { border-radius: 22px; overflow: hidden; }
+.jual-detail .modal-body { padding: 16px 16px 8px; }
+.jual-detail-total {
+    background: #ECFDF5;
+    border-radius: 16px;
+    padding: 14px 16px;
+}
+.jual-detail-angka {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.45rem, 4vw, 1.85rem);
+    color: #065F46;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.jual-detail-catatan {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #FFFBEB;
+    color: #78350F;
+}
+.jual-bagi {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-radius: 14px;
+    padding: 12px 14px;
+}
+.jual-detail-aksi {
+    display: flex;
+    gap: 8px;
+    border-top: 0;
+    padding-top: 8px;
+}
+.jual-detail-aksi .btn {
+    border: 0;
+    border-radius: 12px;
+    font-weight: 600;
+    flex: 1;
+}
+.jual-btn-edit { background: #FEF3C7; color: #92400E; }
+.jual-btn-edit:hover { background: #FDE68A; color: #78350F; }
+.jual-btn-hapus { background: #FEE2E2; color: #991B1B; }
+.jual-btn-hapus:hover { background: #FECACA; color: #7F1D1D; }
+.jual-btn-tutup { background: #F3F4F6; color: #374151; }
+.jual-btn-tutup:hover { background: #E5E7EB; color: #111827; }
 </style>
 
 <script>

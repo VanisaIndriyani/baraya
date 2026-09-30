@@ -27,7 +27,7 @@ function asalTransaksiLabel($t)
     if (!empty($t['id_penjualan'])) {
         return '<span class="badge bg-info text-dark me-1"><i class="bi bi-cart-check"></i> Penjualan</span>';
     }
-    if (!empty($t['id_pembelian'])) {
+    if (!empty($t['id_pembelian'] ?? null)) {
         return '<span class="badge bg-primary me-1"><i class="bi bi-bag-plus"></i> Beli Bahan</span>';
     }
     if (!empty($t['id_pengeluaran'])) {
@@ -89,142 +89,180 @@ foreach ($daftar_rekening as $r) {
 }
 ?>
 
-<div class="page-header">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 w-100">
-        <div>
-            <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none mb-2 d-inline-block opacity-75"><i class="bi bi-arrow-left"></i> Kembali</a>
-            <h4 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Saldo Rekening</h4>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4 mb-4">
-    <?php foreach ($daftar_rekening as $rekening):
-        $kode = $rekening['kode_rekening'] ?? '';
-        $display_nama = $rekening['_display_nama'];
-        $deskripsi_badge = $rekening['_desk_badge'];
-        $card_color = $rekening['_warna'];
-        $id_rekening = (int) $rekening['id'];
-        $saldo_rek = (float) $rekening['saldo'];
-
-        $card_gradients = [
-            'danger'  => 'linear-gradient(135deg, #7F1D1D 0%, #991B1B 50%, #B91C1C 100%)',
-            'warning' => 'linear-gradient(135deg, #78350F 0%, #92400E 50%, #B45309 100%)',
-            'success' => 'linear-gradient(135deg, #064E3B 0%, #065F46 50%, #047857 100%)',
-            'primary' => 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #2563EB 100%)',
-        ];
-        $bg_gradient = $card_gradients[$card_color] ?? $card_gradients['primary'];
-        $card_icon = match ($card_color) {
-            'danger'  => 'building-fill-lock',
-            'warning' => 'wallet2',
-            'success' => 'piggy-bank-fill',
-            default   => 'credit-card-fill',
-        };
-    ?>
-    <div class="col-md-6 col-xl-4">
-        <div class="card border-0 shadow rounded-4 h-100 overflow-hidden text-white transition-card" style="background: <?php echo $bg_gradient; ?>;">
-            <div class="card-body p-5">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div>
-                        <div class="opacity-75 small mb-1"><?php echo $deskripsi_badge; ?></div>
-                        <h3 class="fw-bold mb-0 lh-1"><?php echo $display_nama; ?></h3>
-                    </div>
-                    <div class="bg-white bg-opacity-10 rounded-4 p-3 backdrop-blur-sm border border-white border-opacity-10">
-                        <i class="bi bi-<?php echo $card_icon; ?> fs-3"></i>
-                    </div>
-                </div>
-                <div class="rounded-3 bg-white bg-opacity-10 backdrop-blur-sm p-4 mb-4 border border-white border-opacity-10">
-                    <div class="opacity-75 small mb-2 d-flex align-items-center">
-                        <i class="bi bi-cash-stack me-2"></i>Saldo
-                    </div>
-                    <h1 class="fw-black mb-0 lh-1" style="font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -0.5px;">
-                        Rp <?php echo number_format($saldo_rek, 0, ',', '.'); ?>
-                    </h1>
-                </div>
-                <?php
-                    $stmt = $pdo->prepare("SELECT * FROM saldo_rekening_transaksi WHERE id_rekening = ? ORDER BY tanggal DESC, created_at DESC LIMIT 5");
-                    $stmt->execute([$id_rekening]);
-                    $transaksi_list = $stmt->fetchAll();
-                ?>
-                <div class="small mb-3 fw-bold d-flex align-items-center text-white" style="letter-spacing: 0.3px;">
-                    <i class="bi bi-clock-history me-2 opacity-90"></i>Transaksi Terakhir
-                </div>
-                <?php if (empty($transaksi_list)): ?>
-                <div class="rounded-3 p-4 text-center small fw-medium text-white border border-white border-opacity-15" style="background: rgba(255,255,255,0.07);">
-                    <i class="bi bi-inbox me-1 opacity-70"></i> Belum ada transaksi
-                </div>
-                <?php else: ?>
-                <div class="rounded-3 overflow-hidden border border-white border-opacity-12" style="background: rgba(255,255,255,0.06);">
-                    <?php foreach ($transaksi_list as $idx => $t): ?>
-                    <?php
-                        $ket = $t['keterangan'] ?: labelTipeTransaksi($t['tipe_transaksi']);
-                        $isLast = $idx === count($transaksi_list) - 1;
-                    ?>
-                    <div class="d-flex align-items-center justify-content-between gap-3 px-3 py-2.5 <?php echo !$isLast ? 'border-bottom border-white border-opacity-10' : ''; ?>">
-                        <div class="flex-grow-1 min-w-0">
-                            <div class="text-truncate fw-bold text-white mb-1" style="font-size: 0.88rem;">
-                                <?php
-                                    echo htmlspecialchars(mb_substr($ket, 0, 24));
-                                    echo mb_strlen($ket) > 24 ? '...' : '';
-                                ?>
-                            </div>
-                            <div class="text-white opacity-70 d-flex align-items-center" style="font-size: 0.72rem;">
-                                <i class="bi bi-calendar3 me-1.5" style="font-size: 0.7rem;"></i><?php echo date('d M Y', strtotime($t['tanggal'])); ?>
-                            </div>
-                        </div>
-                        <div class="fw-black flex-shrink-0 text-end <?php echo $t['tipe_transaksi'] === 'debit' ? 'text-success-emphasis' : 'text-danger-emphasis'; ?>" style="font-size: 0.92rem; letter-spacing: -0.2px; text-shadow: 0 1px 2px rgba(0,0,0,0.18);">
-                            <?php echo $t['tipe_transaksi'] === 'debit' ? '+' : '-'; ?>Rp <?php echo number_format($t['jumlah'], 0, ',', '.'); ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    <?php endforeach; ?>
-
-    <div class="col-12">
-        <div class="card border-0 shadow rounded-4 overflow-hidden transition-card" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%); color: white;">
-            <div class="card-body d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4 p-5">
-                <div>
-                    <div class="opacity-75 small mb-2"><i class="bi bi-graph-up-arrow me-2"></i>Total Aset</div>
-                    <h1 class="fw-black mb-0 lh-1" style="font-size: clamp(1.75rem, 4vw, 2.5rem); letter-spacing: -0.5px;">
-                        Rp <?php echo number_format($total_semua, 0, ',', '.'); ?>
-                    </h1>
-                    <small class="opacity-60 mt-2 d-block">Gabungan semua rekening</small>
-                </div>
-                <div class="d-flex flex-wrap gap-3 small">
-                    <span class="badge rounded-pill bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2">
-                        <i class="bi bi-building-fill-lock me-1"></i>Ruko
-                    </span>
-                    <span class="badge rounded-pill bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2">
-                        <i class="bi bi-wallet2 me-1"></i>Operasional
-                    </span>
-                    <span class="badge rounded-pill bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2">
-                        <i class="bi bi-piggy-bank-fill me-1"></i>Penjualan
-                    </span>
-                    <span class="badge rounded-pill bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2">
-                        <i class="bi bi-lightning-fill me-1"></i>Auto Update
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-.transition-card {
-    transition: all 0.3s ease;
+.rek-hero {
+    background: linear-gradient(135deg, #450A0A 0%, #7F1D1D 55%, #991B1B 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 16px 36px rgba(127, 29, 29, 0.22);
+    position: relative;
+    overflow: hidden;
 }
-.transition-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important;
+.rek-hero::after {
+    content: "";
+    position: absolute;
+    right: -36px;
+    top: -46px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(251, 191, 36, 0.16);
 }
-.backdrop-blur-sm {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+.rek-total {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.45rem, 4vw, 2rem);
+    letter-spacing: -0.6px;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+.rek-card {
+    display: block;
+    width: 100%;
+    font: inherit;
+    appearance: none;
+    text-align: left;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    height: 100%;
+    cursor: pointer;
+    padding: 0;
+    color: inherit;
+}
+.rek-card:hover { box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1); }
+.rek-head { padding: 18px; color: #fff; }
+.rek-saldo {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    letter-spacing: -0.4px;
+    overflow-wrap: anywhere;
+}
+.rek-hint {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: #fff;
+    color: #6B7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.rek-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+.rek-row:last-child { border-bottom: 0; }
+.rek-modal .modal-content { border: 0; border-radius: 20px; overflow: hidden; }
+.rek-modal .modal-body { max-height: min(68vh, 560px); overflow-y: auto; }
+@media (max-width: 576px) {
+    .rek-hero { padding: 16px; border-radius: 18px; }
+    .rek-modal .modal-dialog { margin: 12px; }
 }
 </style>
+
+<div class="rek-hero mb-4">
+    <div class="position-relative" style="z-index:1;">
+        <a href="<?php echo $base_url; ?>/admin_dashboard.php" class="text-white text-decoration-none d-inline-flex align-items-center gap-1 mb-2 opacity-75">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+        <h4 class="mb-1 fw-bold">Saldo Rekening</h4>
+        <div class="small mb-3" style="color:#FDE68A;">Uang ruko, kas operasional, dan tabungan penjualan.</div>
+        <div class="small opacity-75">Total semua rekening</div>
+        <div class="rek-total">Rp <?php echo number_format($total_semua, 0, ',', '.'); ?></div>
+    </div>
+</div>
+
+<div class="row g-3">
+<?php foreach ($daftar_rekening as $rekening):
+    $kode = $rekening['kode_rekening'] ?? '';
+    $id_rekening = (int) $rekening['id'];
+    $saldo_rek = (float) $rekening['saldo'];
+    if ($kode === 'uang_ruko') {
+        $bg = 'linear-gradient(135deg,#450A0A,#991B1B)';
+        $ikon = 'building-fill-lock';
+    } elseif ($kode === 'operasional') {
+        $bg = 'linear-gradient(135deg,#92400E,#D97706)';
+        $ikon = 'wallet2';
+    } elseif ($kode === 'penjualan') {
+        $bg = 'linear-gradient(135deg,#065F46,#059669)';
+        $ikon = 'piggy-bank-fill';
+    } else {
+        $bg = 'linear-gradient(135deg,#1E3A8A,#2563EB)';
+        $ikon = 'credit-card-fill';
+    }
+    $stmt = $pdo->prepare("SELECT * FROM saldo_rekening_transaksi WHERE id_rekening = ? ORDER BY tanggal DESC, id DESC");
+    $stmt->execute([$id_rekening]);
+    $transaksi_list = $stmt->fetchAll();
+    $jumlah_riwayat = count($transaksi_list);
+?>
+    <div class="col-12 col-lg-4">
+        <button type="button" class="rek-card" data-bs-toggle="modal" data-bs-target="#riwayatRek<?php echo $id_rekening; ?>">
+            <div class="rek-head" style="background:<?php echo $bg; ?>;">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div class="min-w-0">
+                        <div class="small opacity-75"><?php echo htmlspecialchars($rekening['_desk_badge']); ?></div>
+                        <div class="fw-bold"><?php echo htmlspecialchars($rekening['_display_nama']); ?></div>
+                    </div>
+                    <i class="bi bi-<?php echo $ikon; ?>" style="font-size:1.4rem; opacity:0.85;"></i>
+                </div>
+                <div class="rek-saldo mt-3">Rp <?php echo number_format($saldo_rek, 0, ',', '.'); ?></div>
+            </div>
+            <div class="rek-hint">
+                <span><?php echo $jumlah_riwayat; ?> transaksi</span>
+                <span>Lihat riwayat <i class="bi bi-chevron-right"></i></span>
+            </div>
+        </button>
+    </div>
+
+    <div class="modal fade rek-modal" id="riwayatRek<?php echo $id_rekening; ?>" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 text-white" style="background:<?php echo $bg; ?>;">
+                    <div>
+                        <div class="small opacity-75"><?php echo htmlspecialchars($rekening['_desk_badge']); ?></div>
+                        <h5 class="modal-title fw-bold mb-0"><?php echo htmlspecialchars($rekening['_display_nama']); ?></h5>
+                        <div class="fw-bold mt-1">Rp <?php echo number_format($saldo_rek, 0, ',', '.'); ?></div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <?php if (!$transaksi_list): ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-inbox d-block mb-2" style="font-size:1.6rem;"></i>
+                            Belum ada riwayat di rekening ini.
+                        </div>
+                    <?php else: foreach ($transaksi_list as $t):
+                        $ket = $t['keterangan'] ?: labelTipeTransaksi($t['tipe_transaksi']);
+                        $masuk = $t['tipe_transaksi'] === 'debit';
+                    ?>
+                        <div class="rek-row">
+                            <div class="min-w-0">
+                                <div class="fw-semibold"><?php echo htmlspecialchars($ket); ?></div>
+                                <div class="small text-muted mt-1">
+                                    <?php echo date('d M Y', strtotime($t['tanggal'])); ?>
+                                    · <?php echo $masuk ? 'Masuk' : 'Keluar'; ?>
+                                </div>
+                                <div class="mt-1"><?php echo asalTransaksiLabel($t); ?></div>
+                            </div>
+                            <div class="fw-bold flex-shrink-0 text-end" style="color:<?php echo $masuk ? '#047857' : '#991B1B'; ?>;">
+                                <?php echo $masuk ? '+' : '−'; ?>Rp <?php echo number_format($t['jumlah'], 0, ',', '.'); ?>
+                            </div>
+                        </div>
+                    <?php endforeach; endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
+</div>
 
 <?php include '../includes/footer.php'; ?>
