@@ -11,7 +11,10 @@
             <div class="fw-bold">Asisten Baraya</div>
             <div class="small" style="color:#FDE68A;">ChatGPT. Tanya bebas, atau catat pendapatan dan pengeluaran.</div>
         </div>
-        <button type="button" class="btn btn-sm text-white" id="asistenTutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+        <div class="d-flex gap-1">
+            <button type="button" class="btn btn-sm text-white" id="asistenHapus" aria-label="Hapus riwayat chat" title="Hapus riwayat"><i class="bi bi-trash"></i></button>
+            <button type="button" class="btn btn-sm text-white" id="asistenTutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+        </div>
     </div>
     <div class="asisten-pesan" id="asistenPesan"></div>
     <form class="asisten-form" id="asistenForm">
@@ -106,6 +109,11 @@
     });
     document.getElementById('asistenTutup').addEventListener('click', function () {
         panel.classList.add('d-none');
+    });
+    document.getElementById('asistenHapus').addEventListener('click', function () {
+        pesan = [];
+        sessionStorage.removeItem(kunci);
+        gambar();
     });
     form.addEventListener('submit', function (e) {
         e.preventDefault();
