@@ -129,7 +129,7 @@ body > .sidebar,
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    cursor: pointer;
+    cursor: default;
     user-select: none;
     background: transparent;
 }
