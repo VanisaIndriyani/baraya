@@ -492,6 +492,36 @@ sinkronHutangPembelianTertinggal($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
+    if ($action === 'hapus_pengeluaran') {
+        $id = (int) ($_POST['id'] ?? 0);
+        try {
+            financeEnsureAccountSystem($pdo);
+            $stmt = $pdo->prepare('SELECT * FROM pengeluaran WHERE id = ?');
+            $stmt->execute([$id]);
+            $row = $stmt->fetch();
+            if (!$row) {
+                throw new Exception('Pengeluaran tidak ditemukan.');
+            }
+            $pdo->beginTransaction();
+            $hapus_trx = $pdo->prepare('DELETE FROM saldo_rekening_transaksi WHERE id_pengeluaran = ?');
+            $hapus_trx->execute([$id]);
+            if ($hapus_trx->rowCount() > 0) {
+                $rek = financeGetAccountByCode($pdo, 'operasional');
+                if ($rek) {
+                    financeAdjustSaldoRekening($pdo, $rek['id'], (float) $row['jumlah']);
+                }
+            }
+            $pdo->prepare('DELETE FROM pengeluaran WHERE id = ?')->execute([$id]);
+            $pdo->commit();
+            tampilkanAlertPembelian('success', 'Berhasil', 'Pengeluaran dihapus.', $redirect_url);
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            tampilkanAlertPembelian('error', 'Gagal', $e->getMessage(), null, 3000);
+        }
+    }
+
     if ($action === 'tambah_pembelian') {
         $id_supplier = !empty($_POST['id_supplier']) ? (int) $_POST['id_supplier'] : null;
         $metode = 'kas_operasional';
@@ -697,6 +727,28 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute($params_beli);
 $pembelian = $stmt->fetchAll();
+
+$pengeluaran_bulan = [];
+try {
+    $stmt = $pdo->prepare('SELECT * FROM pengeluaran WHERE tanggal >= ? AND tanggal <= ? ORDER BY tanggal DESC, id DESC');
+    $stmt->execute([$awal_bulan, $akhir_bulan]);
+    $pengeluaran_bulan = $stmt->fetchAll();
+    if ($search !== '') {
+        $cari = function_exists('mb_strtolower') ? mb_strtolower($search, 'UTF-8') : strtolower($search);
+        $pengeluaran_bulan = array_values(array_filter($pengeluaran_bulan, static function ($keluar) use ($cari) {
+            $teks = strtolower(($keluar['keterangan'] ?? '') . ' ' . ($keluar['kategori'] ?? ''));
+            return str_contains($teks, $cari);
+        }));
+    }
+} catch (Throwable $e) {
+    $pengeluaran_bulan = [];
+}
+$total_pengeluaran_bulan = 0.0;
+foreach ($pengeluaran_bulan as $keluar) {
+    $total_pengeluaran_bulan += (float) $keluar['jumlah'];
+}
+$total_keluar_bulan = (float) ($ringkasan_pembelian['total_nominal'] ?? 0) + $total_pengeluaran_bulan;
+$jumlah_catatan_bulan = (int) ($ringkasan_pembelian['total_data'] ?? 0) + count($pengeluaran_bulan);
 ?>
 
 <style>
@@ -786,13 +838,13 @@ $pembelian = $stmt->fetchAll();
     <div class="col-6">
         <div class="beli-stat" style="background:linear-gradient(135deg,#450A0A,#991B1B); color:#fff;">
             <div class="small fw-semibold mb-1" style="color:#FDE68A;"><i class="bi bi-bag-check-fill me-1"></i>Total bulan ini</div>
-            <div class="angka">Rp <?php echo number_format($ringkasan_pembelian['total_nominal'] ?? 0, 0, ',', '.'); ?></div>
+            <div class="angka">Rp <?php echo number_format($total_keluar_bulan, 0, ',', '.'); ?></div>
         </div>
     </div>
     <div class="col-6">
         <div class="beli-stat" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#78350F;">
             <div class="small fw-semibold mb-1"><i class="bi bi-receipt me-1"></i>Jumlah catatan</div>
-            <div class="angka"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0, 0, ',', '.'); ?></div>
+            <div class="angka"><?php echo number_format($jumlah_catatan_bulan, 0, ',', '.'); ?></div>
         </div>
     </div>
 </div>
@@ -814,11 +866,11 @@ $pembelian = $stmt->fetchAll();
 <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h5 class="mb-0 fw-bold">Riwayat <?php echo htmlspecialchars($label_bulan_beli); ?></h5>
-        <small class="text-muted"><?php echo number_format($ringkasan_pembelian['total_data'] ?? 0); ?> catatan</small>
+        <small class="text-muted"><?php echo number_format($jumlah_catatan_bulan); ?> catatan, termasuk pengeluaran</small>
     </div>
 </div>
 
-<?php if (empty($pembelian)): ?>
+<?php if (empty($pembelian) && empty($pengeluaran_bulan)): ?>
 <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-body text-center py-5">
         <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:72px;height:72px;background:#FEF3C7;color:#92400E;">
@@ -872,6 +924,34 @@ $pembelian = $stmt->fetchAll();
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
+        </div>
+    </div>
+<?php endforeach; ?>
+<?php foreach ($pengeluaran_bulan as $keluar):
+    $ket_keluar = trim((string) ($keluar['keterangan'] ?: $keluar['kategori']));
+    if ($ket_keluar === '' || strcasecmp($ket_keluar, 'Dari asisten') === 0) {
+        $ket_keluar = 'Pengeluaran';
+    }
+?>
+    <div class="beli-item">
+        <div class="d-flex gap-3 align-items-start">
+            <span class="beli-nota d-inline-flex align-items-center justify-content-center flex-shrink-0" style="background:#FEE2E2; color:#991B1B;"><i class="bi bi-receipt"></i></span>
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <span class="badge rounded-pill" style="background:#FEE2E2; color:#991B1B;">
+                        <i class="bi bi-calendar-event me-1"></i><?php echo date('d M Y', strtotime($keluar['tanggal'])); ?>
+                    </span>
+                    <span class="badge rounded-pill" style="background:#FEF3C7; color:#92400E;">Pengeluaran</span>
+                </div>
+                <div class="fw-bold" style="color:#7F1D1D; font-size:1.15rem;">Rp <?php echo number_format($keluar['jumlah'], 0, ',', '.'); ?></div>
+                <div class="small text-muted"><?php echo htmlspecialchars($ket_keluar); ?></div>
+                <div class="small mt-1" style="color:#991B1B;">Kas operasional</div>
+            </div>
+            <form method="POST" class="beli-aksi flex-shrink-0" onsubmit="return confirm('Hapus pengeluaran ini? Kas operasional akan dikembalikan.');">
+                <input type="hidden" name="action" value="hapus_pengeluaran">
+                <input type="hidden" name="id" value="<?php echo (int) $keluar['id']; ?>">
+                <button type="submit" class="btn" style="background:#FEE2E2; color:#991B1B;" title="Hapus"><i class="bi bi-trash"></i></button>
+            </form>
         </div>
     </div>
 <?php endforeach; ?>

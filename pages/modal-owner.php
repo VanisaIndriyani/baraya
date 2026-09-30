@@ -112,13 +112,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-if ($filter_semua) {
-    $stmt = $pdo->query("SELECT * FROM gaji_owner ORDER BY bulan DESC, FIELD(owner_key, 'vanisa','dimas'), id");
-    $data_bulan_ini = $stmt->fetchAll();
-} else {
-    $stmt = $pdo->prepare("SELECT * FROM gaji_owner WHERE bulan = ? ORDER BY FIELD(owner_key, 'vanisa','dimas'), id");
-    $stmt->execute([$bulan_terpilih]);
-    $data_bulan_ini = $stmt->fetchAll();
+function ambilDataGajiOwner($pdo, $bulan, $semua)
+{
+    $sql = "SELECT id, owner_key, bulan, nominal, keterangan, 'gaji' AS sumber FROM gaji_owner";
+    $params = [];
+    if (!$semua) {
+        $sql .= ' WHERE bulan = ?';
+        $params[] = $bulan;
+    }
+    $sql .= " ORDER BY bulan DESC, FIELD(owner_key, 'vanisa','dimas'), id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $rows = $stmt->fetchAll();
+
+    $sudah = [];
+    foreach ($rows as $row) {
+        $sudah[$row['owner_key'] . '|' . $row['bulan']] = true;
+    }
+
+    try {
+        $sql_modal = "SELECT id, owner_key, periode_bulan AS bulan, gaji AS nominal, keterangan, 'modal' AS sumber FROM modal_owner WHERE gaji > 0";
+        $params_modal = [];
+        if (!$semua) {
+            $sql_modal .= ' AND periode_bulan = ?';
+            $params_modal[] = $bulan;
+        }
+        $sql_modal .= " ORDER BY periode_bulan DESC, FIELD(owner_key, 'vanisa','dimas'), id";
+        $stmt = $pdo->prepare($sql_modal);
+        $stmt->execute($params_modal);
+        foreach ($stmt->fetchAll() as $row) {
+            $kunci = $row['owner_key'] . '|' . $row['bulan'];
+            if (isset($sudah[$kunci])) {
+                continue;
+            }
+            $rows[] = $row;
+        }
+    } catch (Throwable $e) {
+    }
+
+    return $rows;
+}
+
+$data_bulan_ini = ambilDataGajiOwner($pdo, $bulan_terpilih, $filter_semua);
+$menampilkan_semua_karena_kosong = false;
+if (!$filter_semua && !$data_bulan_ini) {
+    $data_bulan_ini = ambilDataGajiOwner($pdo, $bulan_terpilih, true);
+    $menampilkan_semua_karena_kosong = (bool) $data_bulan_ini;
 }
 
 $total_bulan_ini = 0;
@@ -205,7 +244,7 @@ $bulan_form = $filter_semua ? date('Y-m') : $bulan_terpilih;
         </a>
         <h4 class="mb-1 fw-bold">Gaji Owner</h4>
         <div class="small mb-3" style="color:#FDE68A;">Satu kartu untuk tiap gaji Vanisa dan Dimas.</div>
-        <div class="small opacity-75">Total <?php echo htmlspecialchars($label_bulan); ?></div>
+        <div class="small opacity-75"><?php echo $menampilkan_semua_karena_kosong ? 'Belum ada di bulan ini. Ini gaji yang sudah tersimpan' : 'Total ' . htmlspecialchars($label_bulan); ?></div>
         <div class="gaji-total">Rp <?php echo number_format($total_bulan_ini, 0, ',', '.'); ?></div>
     </div>
 </div>
@@ -239,11 +278,17 @@ $bulan_form = $filter_semua ? date('Y-m') : $bulan_terpilih;
         Klik <b>Catat gaji</b> untuk mengisi gaji Vanisa atau Dimas.
     </div>
 <?php else: ?>
+<?php if ($menampilkan_semua_karena_kosong): ?>
+    <div class="alert border-0 rounded-4 mb-3" style="background:#FEF3C7; color:#78350F;">
+        Belum ada gaji <?php echo htmlspecialchars($label_bulan); ?>. Kartu di bawah adalah gaji yang sudah tersimpan di bulan lain.
+    </div>
+<?php endif; ?>
 <div class="row g-3">
     <?php foreach ($data_bulan_ini as $d):
         $vanisa = $d['owner_key'] === 'vanisa';
         $bg = $vanisa ? 'linear-gradient(135deg,#450A0A,#991B1B)' : 'linear-gradient(135deg,#92400E,#D97706)';
         $nama = $vanisa ? 'Vanisa' : 'Dimas';
+        $bisa_ubah = ($d['sumber'] ?? 'gaji') === 'gaji';
     ?>
     <div class="col-12 col-md-6">
         <div class="gaji-card">
@@ -263,6 +308,7 @@ $bulan_form = $filter_semua ? date('Y-m') : $bulan_terpilih;
                 <i class="bi bi-chat-dots"></i> <?php echo htmlspecialchars($d['keterangan']); ?>
             </div>
             <?php endif; ?>
+            <?php if ($bisa_ubah): ?>
             <div class="p-3 d-flex gap-2 justify-content-end">
                 <button type="button" class="btn btn-sm btn-warning"
                     data-id="<?php echo (int) $d['id']; ?>"
@@ -279,6 +325,7 @@ $bulan_form = $filter_semua ? date('Y-m') : $bulan_terpilih;
                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Hapus</button>
                 </form>
             </div>
+            <?php endif; ?>
         </div>
     </div>
     <?php endforeach; ?>
