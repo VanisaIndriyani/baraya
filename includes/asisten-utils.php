@@ -154,30 +154,111 @@ function asistenAmbilAngka(PDO $pdo, string $tanggal): array
         'pengeluaran_bulan' => $ambil($pdo, "SELECT COALESCE(SUM(jumlah),0) FROM pengeluaran WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulan]),
         'pembelian_bulan' => $ambil($pdo, "SELECT COALESCE(SUM(total),0) FROM pembelian WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulan]),
         'beli_harian_bulan' => $ambil($pdo, "SELECT COALESCE(SUM(subtotal),0) FROM beli_harian WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulan]),
+        'kasir' => $ambil($pdo, 'SELECT COALESCE(SUM(total),0) FROM kasir_transaksi WHERE DATE(tgl) = ?', [$tanggal]),
+        'kasir_jumlah' => $ambil($pdo, 'SELECT COUNT(*) FROM kasir_transaksi WHERE DATE(tgl) = ?', [$tanggal]),
+        'kasir_cash' => $ambil($pdo, "SELECT COALESCE(SUM(total),0) FROM kasir_transaksi WHERE DATE(tgl) = ? AND payment = 'CASH'", [$tanggal]),
+        'kasir_qris' => $ambil($pdo, "SELECT COALESCE(SUM(total),0) FROM kasir_transaksi WHERE DATE(tgl) = ? AND payment = 'QRIS'", [$tanggal]),
+        'kasir_bulan' => $ambil($pdo, "SELECT COALESCE(SUM(total),0) FROM kasir_transaksi WHERE DATE_FORMAT(tgl, '%Y-%m') = ?", [$bulan]),
+        'kasir_jumlah_bulan' => $ambil($pdo, "SELECT COUNT(*) FROM kasir_transaksi WHERE DATE_FORMAT(tgl, '%Y-%m') = ?", [$bulan]),
     ];
+}
+
+function asistenDetailKasir(PDO $pdo, string $tanggal): array
+{
+    $kosong = ['struk' => [], 'produk' => []];
+    try {
+        $stmt = $pdo->prepare('SELECT id, no_struk, tgl, payment, total FROM kasir_transaksi WHERE DATE(tgl) = ? ORDER BY tgl DESC LIMIT 10');
+        $stmt->execute([$tanggal]);
+        $rows = $stmt->fetchAll();
+    } catch (Throwable $e) {
+        return $kosong;
+    }
+    if (!$rows) {
+        return $kosong;
+    }
+
+    $perId = [];
+    try {
+        $ids = array_map(static function ($row) {
+            return (int) $row['id'];
+        }, $rows);
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $itemStmt = $pdo->prepare("SELECT id_transaksi, nama_produk, qty FROM kasir_transaksi_item WHERE id_transaksi IN ($in) ORDER BY id ASC");
+        $itemStmt->execute($ids);
+        foreach ($itemStmt->fetchAll() as $it) {
+            $perId[(int) $it['id_transaksi']][] = $it['nama_produk'] . ' x' . (int) $it['qty'];
+        }
+    } catch (Throwable $e) {
+        $perId = [];
+    }
+
+    $struk = [];
+    foreach ($rows as $row) {
+        $struk[] = [
+            'no_struk' => $row['no_struk'],
+            'jam' => date('H:i', strtotime($row['tgl'])),
+            'bayar' => $row['payment'],
+            'total' => (int) $row['total'],
+            'item' => implode(', ', array_slice($perId[(int) $row['id']] ?? [], 0, 6)),
+        ];
+    }
+
+    $produk = [];
+    try {
+        $stmt = $pdo->prepare("SELECT i.nama_produk, SUM(i.qty) AS qty, SUM(i.subtotal) AS subtotal
+            FROM kasir_transaksi_item i
+            JOIN kasir_transaksi t ON t.id = i.id_transaksi
+            WHERE DATE(t.tgl) = ?
+            GROUP BY i.nama_produk
+            ORDER BY qty DESC
+            LIMIT 12");
+        $stmt->execute([$tanggal]);
+        foreach ($stmt->fetchAll() as $p) {
+            $produk[] = $p['nama_produk'] . ' x' . (int) $p['qty'] . ' (' . asistenRp($p['subtotal']) . ')';
+        }
+    } catch (Throwable $e) {
+        $produk = [];
+    }
+
+    return ['struk' => $struk, 'produk' => $produk];
+}
+
+function asistenTeksKasir(array $angka, string $tanggal, bool $bulan): string
+{
+    if ($bulan) {
+        return 'Omzet kasir bulan ini: ' . asistenRp($angka['kasir_bulan'] ?? 0)
+            . ' dari ' . (int) ($angka['kasir_jumlah_bulan'] ?? 0) . ' struk.';
+    }
+    $label = $tanggal === date('Y-m-d') ? 'hari ini' : date('d/m/Y', strtotime($tanggal));
+    return "Omzet kasir $label: " . asistenRp($angka['kasir'] ?? 0)
+        . ' dari ' . (int) ($angka['kasir_jumlah'] ?? 0) . " struk.\n"
+        . 'Cash: ' . asistenRp($angka['kasir_cash'] ?? 0) . "\n"
+        . 'QRIS: ' . asistenRp($angka['kasir_qris'] ?? 0);
 }
 
 function asistenTeksRingkas(array $angka, string $tanggal, bool $bulan): string
 {
     if ($bulan) {
         $keluar = $angka['pengeluaran_bulan'] + $angka['pembelian_bulan'] + $angka['beli_harian_bulan'];
-        $bersih = $angka['pendapatan_bulan'] - $keluar;
+        $bersih = ($angka['pendapatan_bulan'] + ($angka['kasir_bulan'] ?? 0)) - $keluar;
         return "Ringkasan " . date('F Y', strtotime($tanggal)) . ":\n"
             . "Pendapatan: " . asistenRp($angka['pendapatan_bulan']) . "\n"
             . "Pengeluaran: " . asistenRp($angka['pengeluaran_bulan']) . "\n"
             . "Beli bahan: " . asistenRp($angka['pembelian_bulan']) . "\n"
             . "Beli harian: " . asistenRp($angka['beli_harian_bulan']) . "\n"
+            . "Omzet kasir: " . asistenRp($angka['kasir_bulan'] ?? 0) . ' (' . (int) ($angka['kasir_jumlah_bulan'] ?? 0) . " struk)\n"
             . "Bersih: " . asistenRp($bersih);
     }
 
     $label = $tanggal === date('Y-m-d') ? 'hari ini' : date('d/m/Y', strtotime($tanggal));
     $keluar = $angka['pengeluaran'] + $angka['pembelian'] + $angka['beli_harian'];
-    $bersih = $angka['pendapatan'] - $keluar;
+    $bersih = ($angka['pendapatan'] + ($angka['kasir'] ?? 0)) - $keluar;
     return "Ringkasan $label:\n"
         . "Pendapatan: " . asistenRp($angka['pendapatan']) . "\n"
         . "Pengeluaran: " . asistenRp($angka['pengeluaran']) . "\n"
         . "Beli bahan: " . asistenRp($angka['pembelian']) . "\n"
         . "Beli harian: " . asistenRp($angka['beli_harian']) . "\n"
+        . "Omzet kasir: " . asistenRp($angka['kasir'] ?? 0) . ' (' . (int) ($angka['kasir_jumlah'] ?? 0) . " struk, cash " . asistenRp($angka['kasir_cash'] ?? 0) . ', QRIS ' . asistenRp($angka['kasir_qris'] ?? 0) . ")\n"
         . "Total keluar: " . asistenRp($keluar) . "\n"
         . "Bersih: " . asistenRp($bersih);
 }
@@ -468,7 +549,11 @@ function asistenJawabLokal(PDO $pdo, string $pesanMentah): array
     $angka = asistenAmbilAngka($pdo, $tanggal);
 
     if (!$simpanUang && !$sudahSimpan) {
-        if (str_contains($teks, 'saldo') || str_contains($teks, 'kas') || str_contains($teks, 'rekening')) {
+        $soalKasir = str_contains($teks, 'kasir') || str_contains($teks, 'struk') || str_contains($teks, 'qris');
+        if ($soalKasir) {
+            $bagian[] = asistenTeksKasir($angka, $tanggal, $bulan);
+        }
+        if (str_contains($teks, 'saldo') || str_contains($teks, 'rekening') || (preg_match('/\bkas\b/', $teks) && !$soalKasir)) {
             $bagian[] = asistenTeksSaldo($pdo);
         }
         if (str_contains($teks, 'stok') || (str_contains($teks, 'sisa') && !str_contains($teks, 'bersih'))) {
@@ -480,7 +565,11 @@ function asistenJawabLokal(PDO $pdo, string $pesanMentah): array
             if (str_contains($teks, 'pendapatan') || str_contains($teks, 'pemasukan') || str_contains($teks, 'masuk')) {
                 $nilai = $bulan ? $angka['pendapatan_bulan'] : $angka['pendapatan'];
                 $label = $bulan ? 'bulan ini' : ($tanggal === date('Y-m-d') ? 'hari ini' : date('d/m/Y', strtotime($tanggal)));
-                $bagian[] = "Pendapatan $label: " . asistenRp($nilai) . '.';
+                $omzetKasir = $bulan ? ($angka['kasir_bulan'] ?? 0) : ($angka['kasir'] ?? 0);
+                $jumlahStruk = $bulan ? (int) ($angka['kasir_jumlah_bulan'] ?? 0) : (int) ($angka['kasir_jumlah'] ?? 0);
+                $bagian[] = "Catatan penjualan $label: " . asistenRp($nilai) . ".\n"
+                    . "Omzet kasir $label: " . asistenRp($omzetKasir) . " dari $jumlahStruk struk.\n"
+                    . 'Total gabungan: ' . asistenRp($nilai + $omzetKasir) . '.';
             }
             if (str_contains($teks, 'pengeluaran') || str_contains($teks, 'belanja') || (str_contains($teks, 'keluar') && !str_contains($teks, 'kepake'))) {
                 if ($bulan) {
@@ -560,7 +649,10 @@ function asistenEnv(string $name, string $default = ''): string
 function asistenDataAi(PDO $pdo): array
 {
     $hari = date('Y-m-d');
+    $kemarin = date('Y-m-d', strtotime('-1 day'));
     $angka = asistenAmbilAngka($pdo, $hari);
+    $angkaKemarin = asistenAmbilAngka($pdo, $kemarin);
+    $kasirHari = asistenDetailKasir($pdo, $hari);
     $stok = [];
     try {
         foreach (array_slice(stokAmbilDaftar($pdo, $hari), 0, 20) as $item) {
@@ -572,10 +664,22 @@ function asistenDataAi(PDO $pdo): array
     return [
         'hari_ini' => $hari,
         'bulan' => date('Y-m'),
+        'catatan_penjualan_manual_hari_ini' => (float) $angka['pendapatan'],
+        'omzet_kasir_hari_ini' => (float) ($angka['kasir'] ?? 0),
+        'jumlah_struk_kasir_hari_ini' => (int) ($angka['kasir_jumlah'] ?? 0),
+        'kasir_cash_hari_ini' => (float) ($angka['kasir_cash'] ?? 0),
+        'kasir_qris_hari_ini' => (float) ($angka['kasir_qris'] ?? 0),
+        'omzet_kasir_kemarin' => (float) ($angkaKemarin['kasir'] ?? 0),
+        'jumlah_struk_kasir_kemarin' => (int) ($angkaKemarin['kasir_jumlah'] ?? 0),
+        'struk_kasir_hari_ini' => $kasirHari['struk'],
+        'produk_laku_kasir_hari_ini' => $kasirHari['produk'],
         'pendapatan_hari_ini' => (float) $angka['pendapatan'],
         'pengeluaran_catatan_hari_ini' => (float) $angka['pengeluaran'],
         'beli_bahan_hari_ini' => (float) $angka['pembelian'],
         'beli_harian_hari_ini' => (float) $angka['beli_harian'],
+        'catatan_penjualan_manual_bulan_ini' => (float) $angka['pendapatan_bulan'],
+        'omzet_kasir_bulan_ini' => (float) ($angka['kasir_bulan'] ?? 0),
+        'jumlah_struk_kasir_bulan_ini' => (int) ($angka['kasir_jumlah_bulan'] ?? 0),
         'pendapatan_bulan_ini' => (float) $angka['pendapatan_bulan'],
         'pengeluaran_catatan_bulan_ini' => (float) $angka['pengeluaran_bulan'],
         'beli_bahan_bulan_ini' => (float) $angka['pembelian_bulan'],
@@ -660,7 +764,12 @@ function asistenAiBalas(PDO $pdo, string $pesan, array $riwayat): ?array
         . "- Jika user minta mencatat pendapatan atau pengeluaran, aksi=simpan dan isi nominal rupiah penuh.\n"
         . "- Nominal di bawah 1000 tanpa satuan rb/ribu/jt jangan disimpan. aksi=tanya, tanyakan rupiah atau ribu.\n"
         . "- tanggal default hari_ini. kemarin = hari_ini dikurangi 1 hari.\n"
-        . "- Untuk pertanyaan, aksi=tanya. Sebut angka dari DATA. Bersih = pendapatan - pengeluaran catatan - beli bahan - beli harian.\n"
+        . "- Untuk pertanyaan, aksi=tanya. Sebut angka dari DATA.\n"
+        . "- Transaksi Kasir (halaman transaksi kasir, tabel kasir_transaksi) TERPISAH dari catatan penjualan manual.\n"
+        . "- omzet_kasir, jumlah struk, cash, QRIS, struk_kasir_hari_ini, dan produk_laku_kasir_hari_ini itu data struk kasir. Jangan bilang tidak ada data kasir kalau field itu ada.\n"
+        . "- Kalau ditanya transaksi kasir, struk, QRIS, cash kasir, atau menu yang laku, jawab dari field kasir saja.\n"
+        . "- Kalau ditanya pendapatan tanpa disebut kasir, sebut catatan penjualan manual, omzet kasir, dan total gabungan keduanya.\n"
+        . "- Bersih = (catatan penjualan manual + omzet kasir) - pengeluaran catatan - beli bahan - beli harian.\n"
         . "- Pengeluaran catatan, beli bahan, dan beli harian itu beda. Kalau ditanya pengeluaran, sebut ketiganya.\n"
         . "- Jangan bilang sudah dicatat kalau aksi=tanya.\n"
         . "DATA:\n" . json_encode($data, JSON_UNESCAPED_UNICODE);
